@@ -103,6 +103,80 @@ def lista_veterinarios(request):
     veterinarios = Veterinario.objects.all()
     return render(request, 'clinica/lista_veterinarios.html', {'veterinarios': veterinarios})
 
+# clinica/views.py - agregar estas funciones
 def lista_consultas(request):
-    consultas = Consulta.objects.all()
+    consultas = Consulta.objects.select_related('mascota', 'veterinario').all().order_by('-fecha_consulta')
     return render(request, 'clinica/lista_consultas.html', {'consultas': consultas})
+
+def agregar_consulta(request):
+    if request.method == 'POST':
+        try:
+            # Obtener datos del formulario
+            id_mascota = request.POST.get('mascota')
+            id_veterinario = request.POST.get('veterinario')
+            motivo = request.POST.get('motivo')
+            diagnostico = request.POST.get('diagnostico')
+            tratamiento = request.POST.get('tratamiento')
+            observaciones = request.POST.get('observaciones')
+            costo = request.POST.get('costo')
+            
+            print(f"🔍 DEBUG: Datos consulta - Mascota ID: {id_mascota}, Veterinario ID: {id_veterinario}")
+            
+            if id_mascota and motivo:
+                # Verificar que la mascota existe
+                mascota = Mascota.objects.get(id=id_mascota)
+                
+                consulta_data = {
+                    'mascota': mascota,
+                    'motivo': motivo,
+                    'diagnostico': diagnostico or None,
+                    'tratamiento': tratamiento or None,
+                    'observaciones': observaciones or None,
+                }
+                
+                # Agregar veterinario si se seleccionó uno
+                if id_veterinario:
+                    veterinario = Veterinario.objects.get(id=id_veterinario)
+                    consulta_data['veterinario'] = veterinario
+                
+                # Agregar costo si se proporcionó
+                if costo:
+                    consulta_data['costo'] = float(costo)
+                
+                consulta = Consulta.objects.create(**consulta_data)
+                messages.success(request, f'✅ Consulta registrada exitosamente para {mascota.nombre}')
+                return redirect('lista_consultas')
+                
+            else:
+                messages.error(request, '❌ La mascota y el motivo son obligatorios')
+                
+        except Mascota.DoesNotExist:
+            messages.error(request, '❌ La mascota seleccionada no existe')
+        except Veterinario.DoesNotExist:
+            messages.error(request, '❌ El veterinario seleccionado no existe')
+        except Exception as e:
+            messages.error(request, f'❌ Error al guardar consulta: {e}')
+    
+    # Obtener datos para los dropdowns
+    mascotas = Mascota.objects.select_related('dueno').all()
+    veterinarios = Veterinario.objects.filter(activo=True)
+    
+    return render(request, 'clinica/agregar_consulta.html', {
+        'mascotas': mascotas,
+        'veterinarios': veterinarios
+    })
+
+def historial_mascota(request, mascota_id):
+    """Ver historial de consultas de una mascota específica"""
+    try:
+        mascota = Mascota.objects.get(id=mascota_id)
+        consultas = Consulta.objects.filter(mascota=mascota).select_related('veterinario').order_by('-fecha_consulta')
+        
+        return render(request, 'clinica/historial_mascota.html', {
+            'mascota': mascota,
+            'consultas': consultas
+        })
+        
+    except Mascota.DoesNotExist:
+        messages.error(request, '❌ Mascota no encontrada')
+        return redirect('lista_mascotas')
