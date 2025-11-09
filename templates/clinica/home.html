@@ -1,0 +1,38 @@
+<!-- templates/clinica/home.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h1>Sistema de Gestión Veterinaria</h1>
+        <p class="lead">Bienvenido al sistema de gestión de la clínica veterinaria</p>
+        
+        <div class="row mt-4">
+            <div class="col-md-3">
+                <div class="card text-white bg-primary mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ total_duenos }}</h5>
+                        <p class="card-text">Dueños Registrados</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-white bg-success mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ total_mascotas }}</h5>
+                        <p class="card-text">Mascotas Registradas</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-white bg-warning mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ total_consultas }}</h5>
+                        <p class="card-text">Consultas Realizadas</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

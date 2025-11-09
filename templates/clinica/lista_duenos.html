@@ -1,0 +1,87 @@
+<!-- templates/clinica/lista_duenos.html -->
+{% extends 'base.html' %}
+
+{% block title %}Dueños - Sistema Veterinaria{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>📋 Lista de Dueños</h1>
+    <a href="{% url 'agregar_dueno' %}" class="btn btn-primary">➕ Nuevo Dueño</a>
+</div>
+
+<!-- Debug info (puedes quitar esto después) -->
+<div class="alert alert-info">
+    <strong>Debug:</strong> Se encontraron <strong>{{ duenos|length }}</strong> dueños en la base de datos.
+</div>
+
+{% if duenos %}
+<div class="table-responsive">
+    <table class="table table-striped table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Teléfono</th>
+                <th>Email</th>
+                <th>Dirección</th>
+                <th>Fecha Registro</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for dueno in duenos %}
+            <tr>
+                <td>{{ dueno.id }}</td>
+                <td><strong>{{ dueno.nombre }}</strong></td>
+                <td>
+                    {% if dueno.telefono %}
+                        {{ dueno.telefono }}
+                    {% else %}
+                        <span class="text-muted">-</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if dueno.email %}
+                        {{ dueno.email }}
+                    {% else %}
+                        <span class="text-muted">-</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if dueno.direccion %}
+                        {{ dueno.direccion|truncatewords:3 }}
+                    {% else %}
+                        <span class="text-muted">-</span>
+                    {% endif %}
+                </td>
+                <td>{{ dueno.fecha_registro|date:"d/m/Y" }}</td>
+                <td>
+                    <div class="btn-group btn-group-sm">
+                        <a href="#" class="btn btn-outline-primary">Editar</a>
+                        <a href="#" class="btn btn-outline-info">Mascotas</a>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="alert alert-warning">
+    <h4>⚠️ No hay dueños registrados</h4>
+    <p>Parece que no hay dueños en la base de datos. Puedes:</p>
+    <ul>
+        <li><a href="{% url 'agregar_dueno' %}" class="alert-link">Agregar el primer dueño</a></li>
+        <li><a href="{% url 'admin:index' %}" class="alert-link">Agregar dueños desde el panel de administración</a></li>
+    </ul>
+</div>
+{% endif %}
+
+<!-- Información de ayuda -->
+<div class="card mt-4">
+    <div class="card-body">
+        <h5>💡 Información</h5>
+        <p class="mb-0">Total de dueños registrados: <strong>{{ duenos|length }}</strong></p>
+    </div>
+</div>
+{% endblock %}
