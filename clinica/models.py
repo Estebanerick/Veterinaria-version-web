@@ -31,6 +31,7 @@ class Mascota(models.Model):
     def __str__(self):
         return f"{self.nombre} ({self.especie})"
 
+# clinica/models.py - modelo Consulta
 class Consulta(models.Model):
     mascota = models.ForeignKey(Mascota, on_delete=models.CASCADE)
     veterinario = models.ForeignKey(Veterinario, on_delete=models.SET_NULL, null=True, blank=True)

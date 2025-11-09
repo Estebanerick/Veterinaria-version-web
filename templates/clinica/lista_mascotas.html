@@ -36,10 +36,36 @@
             {% for mascota in mascotas %}
             <tr>
                 <td>{{ mascota.id }}</td>
-                <td><strong>{{ mascota.nombre }}</strong></td>
-                <td>{{ mascota.especie|default:"-" }}</td>
-                <td>{{ mascota.raza|default:"-" }}</td>
-                <td>{{ mascota.dueno.nombre }}</td>
+                <td>
+                    <strong>{{ mascota.nombre }}</strong>
+                    {% if mascota.fecha_nacimiento %}
+                        <br>
+                        <small class="text-muted">
+                            {{ mascota.fecha_nacimiento|timesince }} de edad
+                        </small>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if mascota.especie %}
+                        {{ mascota.especie }}
+                    {% else %}
+                        <span class="text-muted">-</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if mascota.raza %}
+                        {{ mascota.raza }}
+                    {% else %}
+                        <span class="text-muted">-</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {{ mascota.dueno.nombre }}
+                    {% if mascota.dueno.telefono %}
+                        <br>
+                        <small class="text-muted">{{ mascota.dueno.telefono }}</small>
+                    {% endif %}
+                </td>
                 <td>
                     {% if mascota.fecha_nacimiento %}
                         {{ mascota.fecha_nacimiento|date:"d/m/Y" }}
@@ -49,8 +75,16 @@
                 </td>
                 <td>
                     <div class="btn-group btn-group-sm">
-                        <a href="#" class="btn btn-outline-primary">Editar</a>
-                        <a href="#" class="btn btn-outline-info">Historial</a>
+                        <a href="{% url 'historial_mascota' mascota.id %}" 
+                           class="btn btn-outline-info" 
+                           title="Ver historial médico">
+                            📋 Historial
+                        </a>
+                        <a href="{% url 'agregar_consulta' %}" 
+                           class="btn btn-outline-success" 
+                           title="Agregar nueva consulta">
+                            🏥 Nueva Consulta
+                        </a>
                     </div>
                 </td>
             </tr>
@@ -60,17 +94,78 @@
 </div>
 {% else %}
 <div class="alert alert-info">
-    <h4>No hay mascotas registradas</h4>
-    <p>Comienza registrando la primera mascota en el sistema.</p>
-    <a href="{% url 'agregar_mascota' %}" class="btn btn-primary">Registrar Primera Mascota</a>
+    <div class="d-flex">
+        <div class="flex-grow-1">
+            <h4>🐾 No hay mascotas registradas</h4>
+            <p class="mb-3">Comienza registrando la primera mascota en el sistema.</p>
+            <div class="d-grid gap-2 d-md-flex">
+                <a href="{% url 'agregar_mascota' %}" class="btn btn-primary me-md-2">
+                    Registrar Primera Mascota
+                </a>
+                <a href="{% url 'agregar_dueno' %}" class="btn btn-outline-secondary">
+                    Agregar Dueño Primero
+                </a>
+            </div>
+        </div>
+    </div>
 </div>
 {% endif %}
 
+<!-- Tarjeta de información -->
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">📊 Estadísticas</h5>
+            </div>
+            <div class="card-body">
+                <p class="mb-2">
+                    <strong>Total de mascotas:</strong> 
+                    <span class="badge bg-primary">{{ mascotas|length }}</span>
+                </p>
+                <p class="mb-2">
+                    <strong>Dueños registrados:</strong> 
+                    <span class="badge bg-success">{{ duenos_count }}</span>
+                </p>
+                <p class="mb-0">
+                    <strong>Especies únicas:</strong> 
+                    <span class="badge bg-info">{{ especies_unicas }}</span>
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">🚀 Acciones Rápidas</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{% url 'agregar_mascota' %}" class="btn btn-outline-primary btn-sm">
+                        ➕ Agregar Nueva Mascota
+                    </a>
+                    <a href="{% url 'agregar_consulta' %}" class="btn btn-outline-success btn-sm">
+                        🏥 Registrar Consulta Médica
+                    </a>
+                    <a href="{% url 'lista_duenos' %}" class="btn btn-outline-secondary btn-sm">
+                        👥 Gestionar Dueños
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Información adicional -->
 <div class="card mt-4">
     <div class="card-body">
-        <h5>💡 Información</h5>
-        <p class="mb-0">Total de mascotas registradas: <strong>{{ mascotas|length }}</strong></p>
-        <p class="mb-0">Total de dueños disponibles: <strong>{{ duenos_count }}</strong></p>
+        <h5>💡 ¿Cómo usar esta sección?</h5>
+        <ul class="mb-0">
+            <li><strong>📋 Historial:</strong> Ver todas las consultas médicas de una mascota</li>
+            <li><strong>🏥 Nueva Consulta:</strong> Registrar una nueva consulta médica</li>
+            <li><strong>👤 Dueño:</strong> Haz clic en el nombre del dueño para ver su información</li>
+        </ul>
     </div>
 </div>
 {% endblock %}

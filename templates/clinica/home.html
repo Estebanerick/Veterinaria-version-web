@@ -1,34 +1,84 @@
 <!-- templates/clinica/home.html -->
 {% extends 'base.html' %}
 
+{% block title %}Inicio - Sistema Veterinaria{% endblock %}
+
 {% block content %}
 <div class="row">
     <div class="col-md-12">
-        <h1>Sistema de Gestión Veterinaria</h1>
-        <p class="lead">Bienvenido al sistema de gestión de la clínica veterinaria</p>
+        <div class="jumbotron bg-light p-5 rounded">
+            <h1 class="display-4">🐕 Sistema de Gestión Veterinaria</h1>
+            <p class="lead">Bienvenido al sistema de gestión integral de la clínica veterinaria</p>
+            <hr class="my-4">
+            <p>Gestiona dueños, mascotas, consultas y pagos de forma eficiente.</p>
+        </div>
         
         <div class="row mt-4">
             <div class="col-md-3">
                 <div class="card text-white bg-primary mb-3">
-                    <div class="card-body">
-                        <h5 class="card-title">{{ total_duenos }}</h5>
+                    <div class="card-body text-center">
+                        <h5 class="card-title display-6">{{ total_duenos|default:"0" }}</h5>
                         <p class="card-text">Dueños Registrados</p>
+                        <a href="{% url 'lista_duenos' %}" class="btn btn-light btn-sm">Ver lista</a>
                     </div>
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="card text-white bg-success mb-3">
-                    <div class="card-body">
-                        <h5 class="card-title">{{ total_mascotas }}</h5>
+                    <div class="card-body text-center">
+                        <h5 class="card-title display-6">{{ total_mascotas|default:"0" }}</h5>
                         <p class="card-text">Mascotas Registradas</p>
+                        <a href="{% url 'lista_mascotas' %}" class="btn btn-light btn-sm">Ver lista</a>
                     </div>
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="card text-white bg-warning mb-3">
-                    <div class="card-body">
-                        <h5 class="card-title">{{ total_consultas }}</h5>
+                    <div class="card-body text-center">
+                        <h5 class="card-title display-6">{{ total_consultas|default:"0" }}</h5>
                         <p class="card-text">Consultas Realizadas</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-white bg-info mb-3">
+                    <div class="card-body text-center">
+                        <h5 class="card-title display-6">{{ total_veterinarios|default:"0" }}</h5>
+                        <p class="card-text">Veterinarios Activos</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Acciones Rápidas</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <a href="{% url 'agregar_dueno' %}" class="btn btn-primary">➕ Registrar Nuevo Dueño</a>
+                            <a href="{% url 'admin:index' %}" class="btn btn-outline-secondary">⚙️ Panel de Administración</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Información del Sistema</h5>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Desarrollado con:</strong> Django + Bootstrap + Supabase</p>
+                        <p><strong>Versión:</strong> 1.0</p>
+                        <p><strong>Estado:</strong> 
+                            {% if conexion_supabase %}
+                                <span class="badge bg-success">Conectado a Supabase</span>
+                            {% else %}
+                                <span class="badge bg-danger">Error de conexión</span>
+                            {% endif %}
+                        </p>
                     </div>
                 </div>
             </div>

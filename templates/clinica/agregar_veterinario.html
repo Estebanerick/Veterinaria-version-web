@@ -1,0 +1,75 @@
+<!-- templates/clinica/agregar_veterinario.html -->
+{% extends 'base.html' %}
+
+{% block title %}Agregar Veterinario - Sistema Veterinaria{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0">👨‍⚕️ Registrar Nuevo Veterinario</h4>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <div class="mb-3">
+                        <label for="nombre" class="form-label">Nombre completo *</label>
+                        <input type="text" class="form-control" id="nombre" name="nombre" required 
+                               placeholder="Nombre completo del veterinario">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="especialidad" class="form-label">Especialidad</label>
+                        <input type="text" class="form-control" id="especialidad" name="especialidad" 
+                               placeholder="Ej: Cirugía, Dermatología, Cardiología...">
+                        <div class="form-text">Puedes dejar este campo vacío si no aplica</div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="telefono" class="form-label">Teléfono</label>
+                            <input type="text" class="form-control" id="telefono" name="telefono" 
+                                   placeholder="Número de teléfono">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" name="email" 
+                                   placeholder="correo@ejemplo.com">
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{% url 'lista_veterinarios' %}" class="btn btn-secondary me-md-2">Cancelar</a>
+                        <button type="submit" class="btn btn-primary">
+                            Guardar Veterinario
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Información adicional -->
+        <div class="card mt-4">
+            <div class="card-body">
+                <h5>💡 Información importante</h5>
+                <ul class="mb-0">
+                    <li>Los veterinarios registrados aparecerán en las listas desplegables al crear consultas</li>
+                    <li>Puedes asignar especialidades para organizar mejor a tu equipo médico</li>
+                    <li>Los campos de teléfono y email son opcionales pero recomendados</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

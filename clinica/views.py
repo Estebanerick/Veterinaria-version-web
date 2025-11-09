@@ -51,13 +51,16 @@ def agregar_dueno(request):
     
     return render(request, 'clinica/agregar_dueno.html')
 
-# En clinica/views.py, actualiza la función lista_mascotas:
-def lista_mascotas(request):
-    mascotas = Mascota.objects.select_related('dueno').all()
-    duenos_count = Dueno.objects.count()  # Agregar esta línea
-    return render(request, 'clinica/lista_mascotas.html', {
-        'mascotas': mascotas,
-        'duenos_count': duenos_count  # Pasar el conteo al template
+# En clinica/views.py, actualiza lista_consultas:
+def lista_consultas(request):
+    consultas = Consulta.objects.select_related('mascota', 'veterinario').all().order_by('-fecha_consulta')
+    
+    # Contar mascotas que tienen consultas
+    mascotas_con_consultas = Mascota.objects.filter(consulta__isnull=False).distinct().count()
+    
+    return render(request, 'clinica/lista_consultas.html', {
+        'consultas': consultas,
+        'mascotas_con_consultas': mascotas_con_consultas
     })
 
 def agregar_mascota(request):
@@ -99,17 +102,17 @@ def agregar_mascota(request):
     duenos = Dueno.objects.all()
     return render(request, 'clinica/agregar_mascota.html', {'duenos': duenos})
 
-def lista_veterinarios(request):
-    veterinarios = Veterinario.objects.all()
-    return render(request, 'clinica/lista_veterinarios.html', {'veterinarios': veterinarios})
-
 # clinica/views.py - agregar estas funciones
 def lista_consultas(request):
     consultas = Consulta.objects.select_related('mascota', 'veterinario').all().order_by('-fecha_consulta')
     return render(request, 'clinica/lista_consultas.html', {'consultas': consultas})
 
+# clinica/views.py - función agregar_consulta con debugging
 def agregar_consulta(request):
+    print("🔍 DEBUG: Entrando a agregar_consulta")
+    
     if request.method == 'POST':
+        print("🔍 DEBUG: Método POST recibido")
         try:
             # Obtener datos del formulario
             id_mascota = request.POST.get('mascota')
@@ -120,11 +123,12 @@ def agregar_consulta(request):
             observaciones = request.POST.get('observaciones')
             costo = request.POST.get('costo')
             
-            print(f"🔍 DEBUG: Datos consulta - Mascota ID: {id_mascota}, Veterinario ID: {id_veterinario}")
+            print(f"🔍 DEBUG: Datos recibidos - Mascota: {id_mascota}, Motivo: {motivo}")
             
             if id_mascota and motivo:
                 # Verificar que la mascota existe
                 mascota = Mascota.objects.get(id=id_mascota)
+                print(f"🔍 DEBUG: Mascota encontrada: {mascota.nombre}")
                 
                 consulta_data = {
                     'mascota': mascota,
@@ -138,28 +142,50 @@ def agregar_consulta(request):
                 if id_veterinario:
                     veterinario = Veterinario.objects.get(id=id_veterinario)
                     consulta_data['veterinario'] = veterinario
+                    print(f"🔍 DEBUG: Veterinario asignado: {veterinario.nombre}")
                 
                 # Agregar costo si se proporcionó
                 if costo:
                     consulta_data['costo'] = float(costo)
+                    print(f"🔍 DEBUG: Costo asignado: {costo}")
                 
                 consulta = Consulta.objects.create(**consulta_data)
+                print(f"🔍 DEBUG: Consulta creada exitosamente - ID: {consulta.id}")
+                
                 messages.success(request, f'✅ Consulta registrada exitosamente para {mascota.nombre}')
                 return redirect('lista_consultas')
                 
             else:
-                messages.error(request, '❌ La mascota y el motivo son obligatorios')
+                error_msg = '❌ La mascota y el motivo son obligatorios'
+                print(f"🔍 DEBUG: {error_msg}")
+                messages.error(request, error_msg)
                 
         except Mascota.DoesNotExist:
-            messages.error(request, '❌ La mascota seleccionada no existe')
+            error_msg = '❌ La mascota seleccionada no existe'
+            print(f"🔍 DEBUG: {error_msg}")
+            messages.error(request, error_msg)
         except Veterinario.DoesNotExist:
-            messages.error(request, '❌ El veterinario seleccionado no existe')
+            error_msg = '❌ El veterinario seleccionado no existe'
+            print(f"🔍 DEBUG: {error_msg}")
+            messages.error(request, error_msg)
         except Exception as e:
-            messages.error(request, f'❌ Error al guardar consulta: {e}')
+            error_msg = f'❌ Error al guardar consulta: {e}'
+            print(f"🔍 DEBUG: {error_msg}")
+            messages.error(request, error_msg)
+            # Imprimir el traceback completo para debugging
+            import traceback
+            print(f"🔍 DEBUG - Traceback: {traceback.format_exc()}")
     
-    # Obtener datos para los dropdowns
-    mascotas = Mascota.objects.select_related('dueno').all()
-    veterinarios = Veterinario.objects.filter(activo=True)
+    # Obtener datos para los dropdowns (siempre se ejecuta)
+    try:
+        mascotas = Mascota.objects.select_related('dueno').all()
+        veterinarios = Veterinario.objects.filter(activo=True)
+        print(f"🔍 DEBUG: Mascotas encontradas: {mascotas.count()}, Veterinarios: {veterinarios.count()}")
+        
+    except Exception as e:
+        print(f"🔍 DEBUG: Error obteniendo datos: {e}")
+        mascotas = []
+        veterinarios = []
     
     return render(request, 'clinica/agregar_consulta.html', {
         'mascotas': mascotas,
@@ -180,3 +206,94 @@ def historial_mascota(request, mascota_id):
     except Mascota.DoesNotExist:
         messages.error(request, '❌ Mascota no encontrada')
         return redirect('lista_mascotas')
+    
+# clinica/views.py - actualizar la función lista_mascotas
+def lista_mascotas(request):
+    mascotas = Mascota.objects.select_related('dueno').all()
+    duenos_count = Dueno.objects.count()
+    
+    # Calcular especies únicas
+    especies_unicas = Mascota.objects.exclude(especie__isnull=True).exclude(especie='').values_list('especie', flat=True).distinct().count()
+    
+    return render(request, 'clinica/lista_mascotas.html', {
+        'mascotas': mascotas,
+        'duenos_count': duenos_count,
+        'especies_unicas': especies_unicas
+    })
+
+# clinica/views.py - agregar estas funciones para veterinarios
+# En clinica/views.py, actualiza la función lista_veterinarios:
+def lista_veterinarios(request):
+    veterinarios = Veterinario.objects.all().order_by('nombre')
+    
+    # Calcular estadísticas
+    veterinarios_activos = Veterinario.objects.filter(activo=True).count()
+    especialidades_unicas = Veterinario.objects.exclude(especialidad__isnull=True).exclude(especialidad='').values_list('especialidad', flat=True).distinct().count()
+    
+    return render(request, 'clinica/lista_veterinarios.html', {
+        'veterinarios': veterinarios,
+        'veterinarios_activos': veterinarios_activos,
+        'especialidades_unicas': especialidades_unicas
+    })
+
+def agregar_veterinario(request):
+    if request.method == 'POST':
+        try:
+            # Obtener datos del formulario
+            nombre = request.POST.get('nombre')
+            especialidad = request.POST.get('especialidad')
+            telefono = request.POST.get('telefono')
+            email = request.POST.get('email')
+            
+            print(f"🔍 DEBUG: Datos veterinario - Nombre: {nombre}, Especialidad: {especialidad}")
+            
+            if nombre:  # Validación básica
+                veterinario = Veterinario.objects.create(
+                    nombre=nombre,
+                    especialidad=especialidad or None,
+                    telefono=telefono or None,
+                    email=email or None
+                )
+                messages.success(request, f'✅ Veterinario "{veterinario.nombre}" registrado exitosamente')
+                return redirect('lista_veterinarios')
+            else:
+                messages.error(request, '❌ El nombre es obligatorio')
+                
+        except Exception as e:
+            messages.error(request, f'❌ Error al guardar veterinario: {e}')
+    
+    return render(request, 'clinica/agregar_veterinario.html')
+
+def editar_veterinario(request, veterinario_id):
+    try:
+        veterinario = Veterinario.objects.get(id=veterinario_id)
+        
+        if request.method == 'POST':
+            # Actualizar datos
+            veterinario.nombre = request.POST.get('nombre', veterinario.nombre)
+            veterinario.especialidad = request.POST.get('especialidad', veterinario.especialidad)
+            veterinario.telefono = request.POST.get('telefono', veterinario.telefono)
+            veterinario.email = request.POST.get('email', veterinario.email)
+            veterinario.save()
+            
+            messages.success(request, f'✅ Veterinario "{veterinario.nombre}" actualizado exitosamente')
+            return redirect('lista_veterinarios')
+        
+        return render(request, 'clinica/editar_veterinario.html', {'veterinario': veterinario})
+        
+    except Veterinario.DoesNotExist:
+        messages.error(request, '❌ Veterinario no encontrado')
+        return redirect('lista_veterinarios')
+
+def eliminar_veterinario(request, veterinario_id):
+    try:
+        veterinario = Veterinario.objects.get(id=veterinario_id)
+        nombre_veterinario = veterinario.nombre
+        veterinario.delete()
+        
+        messages.success(request, f'✅ Veterinario "{nombre_veterinario}" eliminado exitosamente')
+        
+    except Veterinario.DoesNotExist:
+        messages.error(request, '❌ Veterinario no encontrado')
+    
+    return redirect('lista_veterinarios')

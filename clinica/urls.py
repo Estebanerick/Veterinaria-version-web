@@ -12,4 +12,7 @@ urlpatterns = [
     path('consultas/', views.lista_consultas, name='lista_consultas'),
     path('consultas/agregar/', views.agregar_consulta, name='agregar_consulta'),
     path('veterinarios/', views.lista_veterinarios, name='lista_veterinarios'),
+    path('veterinarios/agregar/', views.agregar_veterinario, name='agregar_veterinario'),
+    path('veterinarios/<int:veterinario_id>/editar/', views.editar_veterinario, name='editar_veterinario'),
+    path('veterinarios/<int:veterinario_id>/eliminar/', views.eliminar_veterinario, name='eliminar_veterinario'),
 ]
