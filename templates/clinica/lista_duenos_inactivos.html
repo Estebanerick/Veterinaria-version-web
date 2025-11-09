@@ -1,114 +1,69 @@
-<!-- templates/clinica/lista_duenos_inactivos.html -->
 {% extends 'base.html' %}
 
-{% block title %}Dueños Inactivos - Sistema Veterinaria{% endblock %}
+{% block title %}Dueños Inactivos{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h1>🗂️ Dueños Inactivos</h1>
-    <a href="{% url 'lista_duenos' %}" class="btn btn-primary">← Volver a Dueños Activos</a>
-</div>
+<div class="container mt-4">
+    <h2>📋 Dueños Eliminados (Inactivos)</h2>
+    
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
 
-{% if messages %}
-    {% for message in messages %}
-        <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
-            {{ message }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    {% if duenos_inactivos %}
+        <div class="alert alert-warning">
+            <strong>⚠️ Acceso Restringido</strong>
+            <p class="mb-0">Solo el Administrador puede restaurar dueños eliminados. Contacta con el administrador del sistema.</p>
         </div>
-    {% endfor %}
-{% endif %}
 
-{% if duenos_inactivos %}
-<div class="alert alert-warning">
-    <strong>💡 Información:</strong> Estos dueños fueron eliminados lógicamente y pueden ser restaurados.
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Teléfono</th>
+                        <th>Email</th>
+                        <th>Fecha Eliminación</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for dueno in duenos_inactivos %}
+                    <tr>
+                        <td>{{ dueno.nombre }}</td>
+                        <td>{{ dueno.telefono|default:"-" }}</td>
+                        <td>{{ dueno.email|default:"-" }}</td>
+                        <td>{{ dueno.fecha_eliminacion|date:"d/m/Y H:i" }}</td>
+                        <td>
+                            <span class="badge bg-secondary">Eliminado</span>
+                            <!-- Botón deshabilitado para usuarios normales -->
+                            <button type="button" 
+                                    class="btn btn-success btn-sm" 
+                                    disabled
+                                    title="Solo disponible para administradores">
+                                🔄 Restaurar
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            <p>No hay dueños eliminados (inactivos) en el sistema.</p>
+        </div>
+    {% endif %}
+    
+    <div class="mt-3">
+        <a href="{% url 'lista_duenos' %}" class="btn btn-primary">
+            ← Volver a Dueños Activos
+        </a>
+    </div>
 </div>
-
-<div class="table-responsive">
-    <table class="table table-striped table-hover">
-        <thead class="table-warning">
-            <tr>
-                <th>Nombre</th>
-                <th>Teléfono</th>
-                <th>Email</th>
-                <th>Fecha Eliminación</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for dueno in duenos_inactivos %}
-            <tr>
-                <td>
-                    <strong>{{ dueno.nombre }}</strong>
-                    <br>
-                    <small class="text-muted">ID: {{ dueno.id }}</small>
-                </td>
-                <td>{{ dueno.telefono|default:"-" }}</td>
-                <td>{{ dueno.email|default:"-" }}</td>
-                <td>
-                    {% if dueno.fecha_eliminacion %}
-                        {{ dueno.fecha_eliminacion|date:"d/m/Y H:i" }}
-                    {% else %}
-                        <span class="text-muted">-</span>
-                    {% endif %}
-                </td>
-                <td>
-                    <div class="btn-group btn-group-sm">
-                        <a href="{% url 'restaurar_dueno' dueno.id %}" 
-                           class="btn btn-outline-success" 
-                           title="Restaurar dueño">
-                            🔄 Restaurar
-                        </a>
-                        <button type="button" 
-                                class="btn btn-outline-danger" 
-                                title="Eliminar físicamente (Peligroso)"
-                                data-bs-toggle="modal" 
-                                data-bs-target="#confirmarEliminarFisico{{ dueno.id }}">
-                            💀 Eliminar Físico
-                        </button>
-                    </div>
-
-                    <!-- Modal para eliminación física (solo para administradores) -->
-                    <div class="modal fade" id="confirmarEliminarFisico{{ dueno.id }}" tabindex="-1">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title text-danger">💀 ELIMINACIÓN FÍSICA</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                </div>
-                                <div class="modal-body">
-                                    <div class="alert alert-danger">
-                                        <strong>¡PELIGRO!</strong> Esta acción es irreversible.
-                                    </div>
-                                    <p>¿Estás absolutamente seguro de que deseas <strong>eliminar físicamente</strong> al dueño <strong>"{{ dueno.nombre }}"</strong>?</p>
-                                    <p class="text-danger">
-                                        <strong>Consecuencias:</strong>
-                                        <ul>
-                                            <li>❌ Todos los datos se perderán permanentemente</li>
-                                            <li>❌ No se podrá recuperar</li>
-                                            <li>❌ Se eliminarán mascotas y consultas asociadas</li>
-                                            <li>❌ Afectará reportes e historiales</li>
-                                        </ul>
-                                    </p>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                                    <a href="{% url 'eliminar_dueno' dueno.id %}" class="btn btn-danger">
-                                        💀 Sí, Eliminar Físicamente
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
-{% else %}
-<div class="alert alert-info">
-    <h4>✅ No hay dueños inactivos</h4>
-    <p class="mb-0">Todos los dueños están activos en el sistema.</p>
-</div>
-{% endif %}
 {% endblock %}

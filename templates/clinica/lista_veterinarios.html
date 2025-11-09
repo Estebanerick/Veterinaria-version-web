@@ -78,6 +78,8 @@
                            title="Editar veterinario">
                             ✏️ Editar
                         </a>
+                        
+                        <!-- Botón que abre el modal de eliminación -->
                         <button type="button" 
                                 class="btn btn-outline-danger" 
                                 title="Eliminar veterinario"
@@ -92,18 +94,24 @@
                         <div class="modal-dialog">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h5 class="modal-title">Confirmar Eliminación</h5>
+                                    <h5 class="modal-title">🔒 Eliminación de Datos</h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                 </div>
                                 <div class="modal-body">
-                                    <p>¿Estás seguro de que deseas eliminar al veterinario <strong>"{{ veterinario.nombre }}"</strong>?</p>
-                                    <p class="text-danger"><small>Esta acción no se puede deshacer.</small></p>
+                                    <p>¿Estás seguro de que quieres eliminar a <strong>"{{ veterinario.nombre }}"</strong>?</p>
+                                    <div class="alert alert-warning">
+                                        <small>
+                                            💡 <strong>Los datos se conservarán</strong> pero no aparecerán en las listas activas.<br>
+                                            Para restaurarlos necesitarás autorización proporcionada por el "Administrador".
+                                        </small>
+                                    </div>
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                                    <a href="{% url 'eliminar_veterinario' veterinario.id %}" class="btn btn-danger">
-                                        Sí, Eliminar
-                                    </a>
+                                    <form method="post" action="{% url 'eliminar_veterinario' veterinario.id %}" style="display: inline;">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-danger">Sí, Eliminar</button>
+                                    </form>
                                 </div>
                             </div>
                         </div>
