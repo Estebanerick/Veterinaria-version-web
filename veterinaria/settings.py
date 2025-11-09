@@ -1,12 +1,22 @@
 # veterinaria/settings.py
 import os
 from pathlib import Path
+from dotenv import load_dotenv
+
+# Cargar variables de entorno AL INICIO
+load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'tu-clave-secreta-aqui'
+# Configuración de Supabase
+SUPABASE_URL = os.getenv('SUPABASE_URL')
+SUPABASE_KEY = os.getenv('SUPABASE_KEY')
 
-DEBUG = True
+# Resto de tu configuración...
+SECRET_KEY = os.getenv('SECRET_KEY', 'clave-secreta-por-defecto')
+DEBUG = os.getenv('DEBUG', 'True') == 'True'
+
+# ... resto del settings.py
 
 ALLOWED_HOSTS = []
 
