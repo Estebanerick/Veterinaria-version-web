@@ -12,9 +12,48 @@ class Persona(models.Model):
     def __str__(self):
         return self.nombre
 
+# clinica/models.py - modificar el modelo Dueno
 class Dueno(Persona):
     direccion = models.TextField(blank=True, null=True)
     fecha_registro = models.DateTimeField(auto_now_add=True)
+    activo = models.BooleanField(default=True)  # ← Agregar este campo
+    fecha_eliminacion = models.DateTimeField(blank=True, null=True)  # ← Agregar este campo
+
+    def __str__(self):
+        return f"{self.nombre} {'(Inactivo)' if not self.activo else ''}"
+    
+    def eliminar_logicamente(self):
+        """Eliminación lógica en lugar de física"""
+        self.activo = False
+        self.fecha_eliminacion = timezone.now()
+        self.save()
+        
+        # También marcar como inactivo en Supabase
+        from .supabase_client import supabase
+        if supabase:
+            try:
+                supabase.table("dueno").update({"activo": False}).eq("nombre", self.nombre).execute()
+                print(f"✅ Dueño marcado como inactivo en Supabase: {self.nombre}")
+            except Exception as e:
+                print(f"❌ Error actualizando Supabase: {e}")
+    
+    def restaurar(self):
+        """Restaurar un dueño eliminado lógicamente"""
+        self.activo = True
+        self.fecha_eliminacion = None
+        self.save()
+        
+        # Restaurar en Supabase también
+        from .supabase_client import supabase
+        if supabase:
+            try:
+                supabase.table("dueno").update({"activo": True}).eq("nombre", self.nombre).execute()
+                print(f"✅ Dueño restaurado en Supabase: {self.nombre}")
+            except Exception as e:
+                print(f"❌ Error actualizando Supabase: {e}")
+
+    class Meta:
+        verbose_name_plural = "Dueños"
 
 class Veterinario(Persona):
     especialidad = models.CharField(max_length=100, blank=True, null=True)

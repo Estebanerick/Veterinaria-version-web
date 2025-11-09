@@ -5,8 +5,15 @@
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1>📋 Lista de Dueños</h1>
-    <a href="{% url 'agregar_dueno' %}" class="btn btn-primary">➕ Nuevo Dueño</a>
+    <h1>📋 Lista de Dueños Activos</h1>
+    <div>
+        {% if duenos_inactivos > 0 %}
+            <a href="{% url 'lista_duenos_inactivos' %}" class="btn btn-warning me-2">
+                🗂️ Dueños Inactivos ({{ duenos_inactivos }})
+            </a>
+        {% endif %}
+        <a href="{% url 'agregar_dueno' %}" class="btn btn-primary">➕ Nuevo Dueño</a>
+    </div>
 </div>
 
 {% if messages %}
@@ -78,39 +85,52 @@
                             🐕 Mascotas
                         </a>
                         <button type="button" 
-                                class="btn btn-outline-danger" 
-                                title="Eliminar dueño"
+                                class="btn btn-outline-warning" 
+                                title="Eliminar lógicamente"
                                 data-bs-toggle="modal" 
-                                data-bs-target="#confirmarEliminar{{ dueno.id }}">
+                                data-bs-target="#confirmarEliminarLogico{{ dueno.id }}">
                             🗑️ Eliminar
                         </button>
                     </div>
 
-                    <!-- Modal de confirmación para eliminar -->
-                    <div class="modal fade" id="confirmarEliminar{{ dueno.id }}" tabindex="-1">
+                    <!-- Modal de confirmación para eliminación lógica -->
+                    <div class="modal fade" id="confirmarEliminarLogico{{ dueno.id }}" tabindex="-1">
                         <div class="modal-dialog">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h5 class="modal-title">⚠️ Confirmar Eliminación</h5>
+                                    <h5 class="modal-title">⚠️ Eliminación Lógica</h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                 </div>
                                 <div class="modal-body">
-                                    <p>¿Estás seguro de que deseas eliminar al dueño <strong>"{{ dueno.nombre }}"</strong>?</p>
+                                    <p>¿Estás seguro de que deseas <strong>eliminar lógicamente</strong> al dueño <strong>"{{ dueno.nombre }}"</strong>?</p>
                                     
                                     {% with mascotas_count=dueno.mascota_set.count %}
                                         {% if mascotas_count > 0 %}
                                             <div class="alert alert-warning">
-                                                <strong>¡Advertencia!</strong> Este dueño tiene <strong>{{ mascotas_count }}</strong> mascota(s) registrada(s).
-                                                <br>Si eliminas al dueño, también se eliminarán todas sus mascotas y consultas asociadas.
+                                                <strong>¡Importante!</strong> 
+                                                <ul class="mb-0 mt-2">
+                                                    <li>Este dueño tiene <strong>{{ mascotas_count }}</strong> mascota(s) registrada(s)</li>
+                                                    <li>El dueño se marcará como <strong>inactivo</strong> pero no se eliminará físicamente</li>
+                                                    <li>Podrás restaurarlo más tarde desde "Dueños Inactivos"</li>
+                                                    <li>Los datos se conservan para historiales y reportes</li>
+                                                </ul>
                                             </div>
                                         {% else %}
-                                            <p class="text-danger"><small>Esta acción no se puede deshacer.</small></p>
+                                            <div class="alert alert-info">
+                                                <strong>Eliminación Lógica:</strong>
+                                                <ul class="mb-0 mt-2">
+                                                    <li>El dueño se marcará como <strong>inactivo</strong></li>
+                                                    <li>No aparecerá en las listas principales</li>
+                                                    <li>Podrás restaurarlo más tarde</li>
+                                                    <li>Los datos se conservan intactos</li>
+                                                </ul>
+                                            </div>
                                         {% endif %}
                                     {% endwith %}
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                                    <a href="{% url 'eliminar_dueno' dueno.id %}" class="btn btn-danger">
+                                    <a href="{% url 'eliminar_dueno_logico' dueno.id %}" class="btn btn-warning">
                                         Sí, Eliminar
                                     </a>
                                 </div>
@@ -127,11 +147,18 @@
 <div class="alert alert-info">
     <div class="d-flex">
         <div class="flex-grow-1">
-            <h4>👤 No hay dueños registrados</h4>
-            <p class="mb-3">Comienza registrando el primer dueño en el sistema.</p>
-            <a href="{% url 'agregar_dueno' %}" class="btn btn-primary">
-                Registrar Primer Dueño
-            </a>
+            <h4>👤 No hay dueños activos</h4>
+            <p class="mb-3">Todos los dueños están marcados como inactivos o no hay registros.</p>
+            <div class="d-grid gap-2 d-md-flex">
+                <a href="{% url 'agregar_dueno' %}" class="btn btn-primary me-md-2">
+                    Registrar Primer Dueño
+                </a>
+                {% if duenos_inactivos > 0 %}
+                    <a href="{% url 'lista_duenos_inactivos' %}" class="btn btn-outline-warning">
+                        Ver Dueños Inactivos ({{ duenos_inactivos }})
+                    </a>
+                {% endif %}
+            </div>
         </div>
     </div>
 </div>
@@ -146,16 +173,20 @@
             </div>
             <div class="card-body">
                 <p class="mb-2">
-                    <strong>Total de dueños:</strong> 
-                    <span class="badge bg-primary">{{ duenos|length }}</span>
+                    <strong>Dueños activos:</strong> 
+                    <span class="badge bg-success">{{ duenos|length }}</span>
                 </p>
                 <p class="mb-2">
-                    <strong>Dueños con teléfono:</strong> 
-                    <span class="badge bg-success">{{ duenos_con_telefono }}</span>
+                    <strong>Dueños inactivos:</strong> 
+                    <span class="badge bg-warning">{{ duenos_inactivos }}</span>
+                </p>
+                <p class="mb-2">
+                    <strong>Con teléfono:</strong> 
+                    <span class="badge bg-info">{{ duenos_con_telefono }}</span>
                 </p>
                 <p class="mb-0">
-                    <strong>Dueños con email:</strong> 
-                    <span class="badge bg-info">{{ duenos_con_email }}</span>
+                    <strong>Con email:</strong> 
+                    <span class="badge bg-secondary">{{ duenos_con_email }}</span>
                 </p>
             </div>
         </div>
@@ -171,11 +202,13 @@
                     <a href="{% url 'agregar_dueno' %}" class="btn btn-outline-primary btn-sm">
                         ➕ Agregar Nuevo Dueño
                     </a>
+                    {% if duenos_inactivos > 0 %}
+                        <a href="{% url 'lista_duenos_inactivos' %}" class="btn btn-outline-warning btn-sm">
+                            🗂️ Gestionar Dueños Inactivos
+                        </a>
+                    {% endif %}
                     <a href="{% url 'lista_mascotas' %}" class="btn btn-outline-success btn-sm">
                         🐕 Ver Todas las Mascotas
-                    </a>
-                    <a href="{% url 'agregar_mascota' %}" class="btn btn-outline-secondary btn-sm">
-                        🏷️ Registrar Nueva Mascota
                     </a>
                 </div>
             </div>
@@ -183,15 +216,18 @@
     </div>
 </div>
 
-<!-- Información adicional -->
+<!-- Información sobre eliminación lógica -->
 <div class="card mt-4">
+    <div class="card-header bg-light">
+        <h5 class="mb-0">💡 Sistema de Eliminación Lógica</h5>
+    </div>
     <div class="card-body">
-        <h5>💡 ¿Cómo usar esta sección?</h5>
+        <p><strong>¿Por qué eliminación lógica?</strong></p>
         <ul class="mb-0">
-            <li><strong>✏️ Editar:</strong> Modificar la información del dueño</li>
-            <li><strong>🐕 Mascotas:</strong> Ver todas las mascotas de este dueño</li>
-            <li><strong>🗑️ Eliminar:</strong> Eliminar dueño (con confirmación)</li>
-            <li><strong>📞 Teléfono/Email:</strong> Información de contacto importante</li>
+            <li>✅ <strong>Seguridad:</strong> Los datos nunca se pierden</li>
+            <li>✅ <strong>Historial:</strong> Se mantiene el registro completo</li>
+            <li>✅ <strong>Recuperación:</strong> Puedes restaurar dueños eliminados</li>
+            <li>✅ <strong>Auditoría:</strong> Mejor trazabilidad del sistema</li>
         </ul>
     </div>
 </div>

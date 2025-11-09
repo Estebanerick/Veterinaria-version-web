@@ -18,4 +18,7 @@ urlpatterns = [
     path('veterinarios/agregar/', views.agregar_veterinario, name='agregar_veterinario'),
     path('veterinarios/<int:veterinario_id>/editar/', views.editar_veterinario, name='editar_veterinario'),
     path('veterinarios/<int:veterinario_id>/eliminar/', views.eliminar_veterinario, name='eliminar_veterinario'),
+    path('duenos/inactivos/', views.lista_duenos_inactivos, name='lista_duenos_inactivos'),
+    path('duenos/<int:dueno_id>/restaurar/', views.restaurar_dueno, name='restaurar_dueno'),
+    path('duenos/<int:dueno_id>/eliminar-logico/', views.eliminar_dueno_logico, name='eliminar_dueno_logico'),
 ]

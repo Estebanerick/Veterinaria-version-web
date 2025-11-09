@@ -30,18 +30,23 @@ def home(request):
     return render(request, 'clinica/home.html', context)
 
 # En clinica/views.py - actualizar la función lista_duenos
+# clinica/views.py - actualizar lista_duenos
+
 def lista_duenos(request):
-    duenos = Dueno.objects.all().order_by('nombre')
+    # VERSIÓN TEMPORAL - mostrar todos los dueños
+    duenos = Dueno.objects.all().order_by('nombre')  # ← SIN FILTRO POR ACTIVO
     
-    # Calcular estadísticas
+    # Calcular estadísticas (versión temporal sin filtro por activo)
     duenos_con_telefono = Dueno.objects.exclude(telefono__isnull=True).exclude(telefono='').count()
     duenos_con_email = Dueno.objects.exclude(email__isnull=True).exclude(email='').count()
+    duenos_inactivos = 0  # ← TEMPORALMENTE 0
     
     return render(request, 'clinica/lista_duenos.html', {
         'duenos': duenos,
         'duenos_con_telefono': duenos_con_telefono,
-        'duenos_con_email': duenos_con_email
-    })
+        'duenos_con_email': duenos_con_email,
+        'duenos_inactivos': duenos_inactivos
+    }) 
 
 def agregar_dueno(request):
     if request.method == 'POST':
@@ -129,6 +134,55 @@ def eliminar_dueno(request, dueno_id):
             return redirect('lista_duenos')
         
         dueno.delete()
+        
+        # Eliminar de Supabase también
+        supabase = get_supabase_client()
+        if supabase:
+            supabase.table("dueno").delete().eq("nombre", nombre_dueno).execute()
+            print(f"✅ Dueño eliminado de Supabase: {nombre_dueno}")
+        
+        messages.success(request, f'✅ Dueño "{nombre_dueno}" eliminado exitosamente')
+        
+    except Dueno.DoesNotExist:
+        messages.error(request, '❌ Dueño no encontrado')
+    
+    return redirect('lista_duenos')
+
+# clinica/views.py - agregar esta función
+def lista_duenos_inactivos(request):
+    """Lista de dueños eliminados lógicamente"""
+    duenos_inactivos = Dueno.objects.filter(activo=False).order_by('-fecha_eliminacion')
+    
+    return render(request, 'clinica/lista_duenos_inactivos.html', {
+        'duenos_inactivos': duenos_inactivos
+    })
+
+def restaurar_dueno(request, dueno_id):
+    """Restaurar un dueño eliminado lógicamente"""
+    try:
+        dueno = Dueno.objects.get(id=dueno_id, activo=False)
+        dueno.restaurar()
+        messages.success(request, f'✅ Dueño "{dueno.nombre}" restaurado exitosamente')
+    except Dueno.DoesNotExist:
+        messages.error(request, '❌ Dueño no encontrado o ya está activo')
+    
+    return redirect('lista_duenos_inactivos')
+
+def eliminar_dueno_logico(request, dueno_id):
+    """Eliminación física temporal (hasta que tengamos migraciones)"""
+    try:
+        # VERSIÓN TEMPORAL - sin filtro por 'activo'
+        dueno = Dueno.objects.get(id=dueno_id)  # ← QUITAMOS EL FILTRO 'activo=True'
+        nombre_dueno = dueno.nombre
+        
+        # Verificar si tiene mascotas antes de eliminar (versión temporal sin 'activo')
+        mascotas_count = Mascota.objects.filter(dueno=dueno).count()  # ← QUITAMOS EL FILTRO 'activo=True'
+        if mascotas_count > 0:
+            messages.error(request, f'❌ No se puede eliminar al dueño "{nombre_dueno}" porque tiene {mascotas_count} mascota(s) registrada(s)')
+            return redirect('lista_duenos')
+        
+        # VERSIÓN TEMPORAL - eliminación física directa
+        dueno.delete()  # ← ELIMINACIÓN FÍSICA TEMPORAL
         
         # Eliminar de Supabase también
         supabase = get_supabase_client()
