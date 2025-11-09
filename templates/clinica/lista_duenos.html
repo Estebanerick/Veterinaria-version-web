@@ -9,10 +9,14 @@
     <a href="{% url 'agregar_dueno' %}" class="btn btn-primary">➕ Nuevo Dueño</a>
 </div>
 
-<!-- Debug info (puedes quitar esto después) -->
-<div class="alert alert-info">
-    <strong>Debug:</strong> Se encontraron <strong>{{ duenos|length }}</strong> dueños en la base de datos.
-</div>
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    {% endfor %}
+{% endif %}
 
 {% if duenos %}
 <div class="table-responsive">
@@ -32,7 +36,13 @@
             {% for dueno in duenos %}
             <tr>
                 <td>{{ dueno.id }}</td>
-                <td><strong>{{ dueno.nombre }}</strong></td>
+                <td>
+                    <strong>{{ dueno.nombre }}</strong>
+                    {% if dueno.telefono %}
+                        <br>
+                        <small class="text-muted">{{ dueno.telefono }}</small>
+                    {% endif %}
+                </td>
                 <td>
                     {% if dueno.telefono %}
                         {{ dueno.telefono }}
@@ -57,8 +67,55 @@
                 <td>{{ dueno.fecha_registro|date:"d/m/Y" }}</td>
                 <td>
                     <div class="btn-group btn-group-sm">
-                        <a href="#" class="btn btn-outline-primary">Editar</a>
-                        <a href="#" class="btn btn-outline-info">Mascotas</a>
+                        <a href="{% url 'editar_dueno' dueno.id %}" 
+                           class="btn btn-outline-primary" 
+                           title="Editar dueño">
+                            ✏️ Editar
+                        </a>
+                        <a href="{% url 'mascotas_dueno' dueno.id %}" 
+                           class="btn btn-outline-info" 
+                           title="Ver mascotas">
+                            🐕 Mascotas
+                        </a>
+                        <button type="button" 
+                                class="btn btn-outline-danger" 
+                                title="Eliminar dueño"
+                                data-bs-toggle="modal" 
+                                data-bs-target="#confirmarEliminar{{ dueno.id }}">
+                            🗑️ Eliminar
+                        </button>
+                    </div>
+
+                    <!-- Modal de confirmación para eliminar -->
+                    <div class="modal fade" id="confirmarEliminar{{ dueno.id }}" tabindex="-1">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">⚠️ Confirmar Eliminación</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <p>¿Estás seguro de que deseas eliminar al dueño <strong>"{{ dueno.nombre }}"</strong>?</p>
+                                    
+                                    {% with mascotas_count=dueno.mascota_set.count %}
+                                        {% if mascotas_count > 0 %}
+                                            <div class="alert alert-warning">
+                                                <strong>¡Advertencia!</strong> Este dueño tiene <strong>{{ mascotas_count }}</strong> mascota(s) registrada(s).
+                                                <br>Si eliminas al dueño, también se eliminarán todas sus mascotas y consultas asociadas.
+                                            </div>
+                                        {% else %}
+                                            <p class="text-danger"><small>Esta acción no se puede deshacer.</small></p>
+                                        {% endif %}
+                                    {% endwith %}
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                    <a href="{% url 'eliminar_dueno' dueno.id %}" class="btn btn-danger">
+                                        Sí, Eliminar
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </td>
             </tr>
@@ -67,21 +124,75 @@
     </table>
 </div>
 {% else %}
-<div class="alert alert-warning">
-    <h4>⚠️ No hay dueños registrados</h4>
-    <p>Parece que no hay dueños en la base de datos. Puedes:</p>
-    <ul>
-        <li><a href="{% url 'agregar_dueno' %}" class="alert-link">Agregar el primer dueño</a></li>
-        <li><a href="{% url 'admin:index' %}" class="alert-link">Agregar dueños desde el panel de administración</a></li>
-    </ul>
+<div class="alert alert-info">
+    <div class="d-flex">
+        <div class="flex-grow-1">
+            <h4>👤 No hay dueños registrados</h4>
+            <p class="mb-3">Comienza registrando el primer dueño en el sistema.</p>
+            <a href="{% url 'agregar_dueno' %}" class="btn btn-primary">
+                Registrar Primer Dueño
+            </a>
+        </div>
+    </div>
 </div>
 {% endif %}
 
-<!-- Información de ayuda -->
+<!-- Tarjeta de información -->
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">📊 Estadísticas</h5>
+            </div>
+            <div class="card-body">
+                <p class="mb-2">
+                    <strong>Total de dueños:</strong> 
+                    <span class="badge bg-primary">{{ duenos|length }}</span>
+                </p>
+                <p class="mb-2">
+                    <strong>Dueños con teléfono:</strong> 
+                    <span class="badge bg-success">{{ duenos_con_telefono }}</span>
+                </p>
+                <p class="mb-0">
+                    <strong>Dueños con email:</strong> 
+                    <span class="badge bg-info">{{ duenos_con_email }}</span>
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">🚀 Acciones Rápidas</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{% url 'agregar_dueno' %}" class="btn btn-outline-primary btn-sm">
+                        ➕ Agregar Nuevo Dueño
+                    </a>
+                    <a href="{% url 'lista_mascotas' %}" class="btn btn-outline-success btn-sm">
+                        🐕 Ver Todas las Mascotas
+                    </a>
+                    <a href="{% url 'agregar_mascota' %}" class="btn btn-outline-secondary btn-sm">
+                        🏷️ Registrar Nueva Mascota
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Información adicional -->
 <div class="card mt-4">
     <div class="card-body">
-        <h5>💡 Información</h5>
-        <p class="mb-0">Total de dueños registrados: <strong>{{ duenos|length }}</strong></p>
+        <h5>💡 ¿Cómo usar esta sección?</h5>
+        <ul class="mb-0">
+            <li><strong>✏️ Editar:</strong> Modificar la información del dueño</li>
+            <li><strong>🐕 Mascotas:</strong> Ver todas las mascotas de este dueño</li>
+            <li><strong>🗑️ Eliminar:</strong> Eliminar dueño (con confirmación)</li>
+            <li><strong>📞 Teléfono/Email:</strong> Información de contacto importante</li>
+        </ul>
     </div>
 </div>
 {% endblock %}

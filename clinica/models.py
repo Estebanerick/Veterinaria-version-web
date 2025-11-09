@@ -45,6 +45,7 @@ class Consulta(models.Model):
     def __str__(self):
         return f"Consulta {self.mascota.nombre} - {self.fecha_consulta}"
 
+# clinica/models.py - agregar al final
 class Pago(models.Model):
     METODOS_PAGO = [
         ('EFECTIVO', 'Efectivo'),
