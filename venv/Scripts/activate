@@ -35,7 +35,7 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
-VIRTUAL_ENV="C:\Users\Fabi\Documents\GitHub - Repositorios\veterinaria_django\venv"
+VIRTUAL_ENV="C:\Users\Danma\Desktop\programaciones\Veterinaria-version-web\venv"
 export VIRTUAL_ENV
 
 _OLD_VIRTUAL_PATH="$PATH"

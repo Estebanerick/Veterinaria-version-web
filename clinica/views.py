@@ -2,6 +2,10 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.utils import timezone
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User
 from .models import Dueno, Mascota, Veterinario, Consulta, Pago
 from .forms import DuenoForm
 
@@ -13,6 +17,50 @@ def get_supabase_client():
     from .supabase_client import supabase
     return supabase
 
+# VISTAS DE AUTENTICACIÓN (NUEVAS)
+def login_view(request):
+    """Vista para el login de usuarios"""
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(request, username=username, password=password)
+        
+        if user is not None:
+            login(request, user)
+            messages.success(request, f'¡Bienvenido {user.username}!')
+            
+            # Redirigir a la página que intentaban acceder o al home
+            next_url = request.GET.get('next', 'home')
+            return redirect(next_url)
+        else:
+            messages.error(request, '❌ Usuario o contraseña incorrectos')
+    
+    return render(request, 'clinica/login.html')
+
+def logout_view(request):
+    """Vista para cerrar sesión"""
+    logout(request)
+    messages.success(request, '✅ Has cerrado sesión exitosamente')
+    return redirect('login')
+
+def register_view(request):
+    """Vista para registro de nuevos usuarios (solo staff)"""
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            messages.success(request, f'✅ Usuario {user.username} creado exitosamente')
+            return redirect('login')
+        else:
+            for error in form.errors.values():
+                messages.error(request, error)
+    else:
+        form = UserCreationForm()
+    
+    return render(request, 'clinica/register.html', {'form': form})
+
+# VISTAS EXISTENTES CON LOGIN REQUERIDO
+@login_required
 def home(request):
     # Obtener estadísticas básicas
     total_duenos = Dueno.objects.count()
@@ -31,6 +79,7 @@ def home(request):
     return render(request, 'clinica/home.html', context)
 
 # VISTAS PARA DUEÑOS
+@login_required
 def lista_duenos(request):
     duenos = Dueno.objects.filter(activo=True).order_by('nombre')
     
@@ -46,6 +95,7 @@ def lista_duenos(request):
         'duenos_inactivos': duenos_inactivos
     })
 
+@login_required
 def agregar_dueno(request):
     if request.method == 'POST':
         try:
@@ -85,6 +135,7 @@ def agregar_dueno(request):
     
     return render(request, 'clinica/agregar_dueno.html')
 
+@login_required
 def editar_dueno(request, dueno_id):
     try:
         dueno = Dueno.objects.get(id=dueno_id)
@@ -118,6 +169,7 @@ def editar_dueno(request, dueno_id):
         messages.error(request, '❌ Dueño no encontrado')
         return redirect('lista_duenos')
 
+@login_required
 def eliminar_dueno_logico(request, dueno_id):
     """Eliminación lógica CORREGIDA"""
     try:
@@ -138,6 +190,7 @@ def eliminar_dueno_logico(request, dueno_id):
     
     return redirect('lista_duenos')
 
+@login_required
 def lista_duenos_inactivos(request):
     """Lista de dueños eliminados lógicamente"""
     duenos_inactivos = Dueno.objects.filter(activo=False).order_by('-fecha_eliminacion')
@@ -146,6 +199,7 @@ def lista_duenos_inactivos(request):
         'duenos_inactivos': duenos_inactivos
     })
 
+@login_required
 def restaurar_dueno(request, dueno_id):
     """Restaurar un dueño eliminado lógicamente"""
     try:
@@ -157,6 +211,7 @@ def restaurar_dueno(request, dueno_id):
     
     return redirect('lista_duenos_inactivos')
 
+@login_required
 def mascotas_dueno(request, dueno_id):
     """Ver todas las mascotas de un dueño específico"""
     try:
@@ -173,6 +228,7 @@ def mascotas_dueno(request, dueno_id):
         return redirect('lista_duenos')
 
 # VISTAS PARA VETERINARIOS
+@login_required
 def lista_veterinarios(request):
     veterinarios = Veterinario.objects.filter(activo=True).order_by('nombre')
     veterinarios_activos = Veterinario.objects.filter(activo=True).count()
@@ -184,6 +240,7 @@ def lista_veterinarios(request):
         'especialidades_unicas': especialidades_unicas
     })
 
+@login_required
 def agregar_veterinario(request):
     if request.method == 'POST':
         try:
@@ -224,6 +281,7 @@ def agregar_veterinario(request):
     
     return render(request, 'clinica/agregar_veterinario.html')
 
+@login_required
 def editar_veterinario(request, veterinario_id):
     try:
         veterinario = Veterinario.objects.get(id=veterinario_id)
@@ -245,6 +303,7 @@ def editar_veterinario(request, veterinario_id):
         messages.error(request, '❌ Veterinario no encontrado')
         return redirect('lista_veterinarios')
 
+@login_required
 def eliminar_veterinario_logico(request, veterinario_id):
     """Eliminación lógica de veterinario"""
     try:
@@ -257,6 +316,7 @@ def eliminar_veterinario_logico(request, veterinario_id):
     
     return redirect('lista_veterinarios')
 
+@login_required
 def lista_veterinarios_inactivos(request):
     """Lista de veterinarios eliminados lógicamente"""
     veterinarios_inactivos = Veterinario.objects.filter(activo=False).order_by('-fecha_eliminacion')
@@ -265,6 +325,7 @@ def lista_veterinarios_inactivos(request):
         'veterinarios_inactivos': veterinarios_inactivos
     })
 
+@login_required
 def restaurar_veterinario(request, veterinario_id):
     """Restaurar un veterinario eliminado lógicamente"""
     try:
@@ -277,6 +338,7 @@ def restaurar_veterinario(request, veterinario_id):
     return redirect('lista_veterinarios_inactivos')
 
 # VISTAS PARA MASCOTAS
+@login_required
 def lista_mascotas(request):
     mascotas = Mascota.objects.filter(activo=True).select_related('dueno').all()
     duenos_count = Dueno.objects.filter(activo=True).count()
@@ -288,6 +350,7 @@ def lista_mascotas(request):
         'especies_unicas': especies_unicas
     })
 
+@login_required
 def agregar_mascota(request):
     if request.method == 'POST':
         try:
@@ -344,6 +407,7 @@ def agregar_mascota(request):
     duenos = Dueno.objects.filter(activo=True)
     return render(request, 'clinica/agregar_mascota.html', {'duenos': duenos})
 
+@login_required
 def eliminar_mascota_logico(request, mascota_id):
     """Eliminación lógica de mascota"""
     try:
@@ -356,6 +420,7 @@ def eliminar_mascota_logico(request, mascota_id):
     
     return redirect('lista_mascotas')
 
+@login_required
 def lista_mascotas_inactivas(request):
     """Lista de mascotas eliminadas lógicamente"""
     mascotas_inactivas = Mascota.objects.filter(activo=False).select_related('dueno').order_by('-fecha_eliminacion')
@@ -364,6 +429,7 @@ def lista_mascotas_inactivas(request):
         'mascotas_inactivas': mascotas_inactivas
     })
 
+@login_required
 def restaurar_mascota(request, mascota_id):
     """Restaurar una mascota eliminada lógicamente"""
     try:
@@ -376,6 +442,7 @@ def restaurar_mascota(request, mascota_id):
     return redirect('lista_mascotas_inactivas')
 
 # VISTAS PARA CONSULTAS
+@login_required
 def lista_consultas(request):
     consultas = Consulta.objects.filter(activo=True).select_related('mascota', 'veterinario').all().order_by('-fecha_consulta')
     mascotas_con_consultas = Mascota.objects.filter(consulta__isnull=False, activo=True).distinct().count()
@@ -385,6 +452,7 @@ def lista_consultas(request):
         'mascotas_con_consultas': mascotas_con_consultas
     })
 
+@login_required
 def agregar_consulta(request):
     if request.method == 'POST':
         try:
@@ -470,6 +538,7 @@ def agregar_consulta(request):
         'veterinarios': veterinarios
     })
 
+@login_required
 def eliminar_consulta_logico(request, consulta_id):
     """Eliminación lógica de consulta"""
     try:
@@ -482,6 +551,7 @@ def eliminar_consulta_logico(request, consulta_id):
     
     return redirect('lista_consultas')
 
+@login_required
 def lista_consultas_inactivas(request):
     """Lista de consultas eliminadas lógicamente"""
     consultas_inactivas = Consulta.objects.filter(activo=False).select_related('mascota', 'veterinario').order_by('-fecha_eliminacion')
@@ -490,6 +560,7 @@ def lista_consultas_inactivas(request):
         'consultas_inactivas': consultas_inactivas
     })
 
+@login_required
 def restaurar_consulta(request, consulta_id):
     """Restaurar una consulta eliminada lógicamente"""
     try:
@@ -501,6 +572,7 @@ def restaurar_consulta(request, consulta_id):
     
     return redirect('lista_consultas_inactivas')
 
+@login_required
 def historial_mascota(request, mascota_id):
     """Ver historial de consultas de una mascota específica"""
     try:
@@ -517,6 +589,7 @@ def historial_mascota(request, mascota_id):
         return redirect('lista_mascotas')
 
 # VISTAS PARA PAGOS
+@login_required
 def eliminar_pago_logico(request, pago_id):
     """Eliminación lógica de pago"""
     try:
@@ -529,6 +602,7 @@ def eliminar_pago_logico(request, pago_id):
     
     return redirect('lista_consultas')  # Ajustar según tu ruta de pagos
 
+@login_required
 def lista_pagos_inactivos(request):
     """Lista de pagos eliminados lógicamente"""
     pagos_inactivos = Pago.objects.filter(activo=False).select_related('consulta').order_by('-fecha_eliminacion')
@@ -537,6 +611,7 @@ def lista_pagos_inactivos(request):
         'pagos_inactivos': pagos_inactivos
     })
 
+@login_required
 def restaurar_pago(request, pago_id):
     """Restaurar un pago eliminado lógicamente"""
     try:
@@ -549,6 +624,7 @@ def restaurar_pago(request, pago_id):
     return redirect('lista_pagos_inactivos')
 
 # VETERINARIOS - Eliminación Lógica
+@login_required
 def eliminar_veterinario_logico(request, veterinario_id):
     """Eliminación lógica de veterinario"""
     try:
@@ -561,6 +637,7 @@ def eliminar_veterinario_logico(request, veterinario_id):
     
     return redirect('lista_veterinarios')
 
+@login_required
 def lista_veterinarios_inactivos(request):
     """Lista de veterinarios eliminados lógicamente"""
     veterinarios_inactivos = Veterinario.objects.filter(activo=False).order_by('-fecha_eliminacion')
@@ -569,6 +646,7 @@ def lista_veterinarios_inactivos(request):
         'veterinarios_inactivos': veterinarios_inactivos
     })
 
+@login_required
 def restaurar_veterinario(request, veterinario_id):
     """Restaurar un veterinario eliminado lógicamente"""
     if not request.user.is_staff:  # Solo staff/admin pueden restaurar
