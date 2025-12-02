@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="container mt-4">
-    <h2>👥 Lista de Dueños</h2>
+    <h2>Lista de Dueños</h2>
     
     <!-- Mensajes -->
     {% if messages %}
@@ -53,11 +53,11 @@
         <div class="col-md-4">
             <div class="d-grid gap-2">
                 <a href="{% url 'agregar_dueno' %}" class="btn btn-success">
-                    ➕ Agregar Dueño
+                    Agregar Dueño
                 </a>
                 {% if duenos_inactivos > 0 %}
                 <a href="{% url 'lista_duenos_inactivos' %}" class="btn btn-warning">
-                    📁 Ver Dueños Eliminados ({{ duenos_inactivos }})
+                    Ver Dueños Eliminados ({{ duenos_inactivos }})
                 </a>
                 {% endif %}
             </div>
@@ -87,7 +87,7 @@
                         <td>
                             {% if dueno.telefono %}
                                 <a href="tel:{{ dueno.telefono }}" class="text-decoration-none">
-                                    📞 {{ dueno.telefono }}
+                                    {{ dueno.telefono }}
                                 </a>
                             {% else %}
                                 <span class="text-muted">-</span>
@@ -96,7 +96,7 @@
                         <td>
                             {% if dueno.email %}
                                 <a href="mailto:{{ dueno.email }}" class="text-decoration-none">
-                                    ✉️ {{ dueno.email }}
+                                    {{ dueno.email }}
                                 </a>
                             {% else %}
                                 <span class="text-muted">-</span>
@@ -105,7 +105,7 @@
                         <td>
                             {% if dueno.direccion %}
                                 <span title="{{ dueno.direccion }}">
-                                    🏠 {{ dueno.direccion|truncatewords:5 }}
+                                    {{ dueno.direccion|truncatewords:5 }}
                                 </span>
                             {% else %}
                                 <span class="text-muted">-</span>
@@ -121,12 +121,12 @@
                                 <a href="{% url 'mascotas_dueno' dueno.id %}" 
                                    class="btn btn-info btn-sm" 
                                    title="Ver mascotas">
-                                    🐾 Mascotas
+                                    Mascotas
                                 </a>
                                 <a href="{% url 'editar_dueno' dueno.id %}" 
                                    class="btn btn-primary btn-sm"
                                    title="Editar dueño">
-                                    ✏️ Editar
+                                    Editar
                                 </a>
                                 
                                 <!-- Botón que abre el modal de eliminación -->
@@ -135,7 +135,7 @@
                                         data-bs-toggle="modal" 
                                         data-bs-target="#confirmarEliminar{{ dueno.id }}"
                                         title="Eliminar lógicamente">
-                                    🗑️ Eliminar
+                                    Eliminar
                                 </button>
                             </div>
 
@@ -144,7 +144,7 @@
                                 <div class="modal-dialog">
                                     <div class="modal-content">
                                         <div class="modal-header">
-                                            <h5 class="modal-title">🔒 Eliminación de Datos</h5>
+                                            <h5 class="modal-title">Eliminación de Datos</h5>
                                             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                         </div>
                                         <div class="modal-body">
@@ -186,7 +186,7 @@
     <div class="mt-4">
         <div class="alert alert-light border">
             <small class="text-muted">
-                <strong>💡 Nota:</strong> La eliminación es lógica. Los dueños eliminados requieren autorización del administrador para ser restaurados.
+                <strong>Nota:</strong> La eliminación es lógica. Los dueños eliminados requieren autorización del administrador para ser restaurados.
             </small>
         </div>
     </div>

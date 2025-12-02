@@ -10,13 +10,13 @@
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container">
-            <a class="navbar-brand" href="/">🐾 Veterinaria</a>
+            <a class="navbar-brand" href="/">Veterinaria</a>
             <a href="/consultas/" class="btn btn-light btn-sm">← Volver a Consultas</a>
         </div>
     </nav>
 
     <div class="container mt-4">
-        <h1>🏥 Registrar Nueva Consulta Médica</h1>
+        <h1>Registrar Nueva Consulta Médica</h1>
         
         {% if messages %}
             {% for message in messages %}
@@ -44,7 +44,7 @@
                         </select>
                         {% if not mascotas %}
                             <div class="alert alert-warning mt-2">
-                                <small>⚠️ No hay mascotas registradas. <a href="/mascotas/agregar/">Agrega una mascota primero</a>.</small>
+                                <small>No hay mascotas registradas. <a href="/mascotas/agregar/">Agrega una mascota primero</a>.</small>
                             </div>
                         {% endif %}
                     </div>

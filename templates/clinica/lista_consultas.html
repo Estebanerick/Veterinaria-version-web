@@ -5,8 +5,8 @@
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1>🏥 Lista de Consultas</h1>
-    <a href="{% url 'agregar_consulta' %}" class="btn btn-primary">➕ Nueva Consulta</a>
+    <h1>Lista de Consultas</h1>
+    <a href="{% url 'agregar_consulta' %}" class="btn btn-primary">Nueva Consulta</a>
 </div>
 
 {% if messages %}
@@ -81,7 +81,7 @@
 
 <div class="card mt-4">
     <div class="card-body">
-        <h5>💡 Información</h5>
+        <h5> Información</h5>
         <p class="mb-0">Total de consultas registradas: <strong>{{ consultas|length }}</strong></p>
         <p class="mb-0">Mascotas con historial médico: <strong>{{ mascotas_con_consultas }}</strong></p>
     </div>

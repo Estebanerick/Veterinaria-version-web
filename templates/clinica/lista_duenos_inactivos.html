@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="container mt-4">
-    <h2>📋 Dueños Eliminados (Inactivos)</h2>
+    <h2>Dueños Eliminados (Inactivos)</h2>
     
     {% if messages %}
         {% for message in messages %}
@@ -17,7 +17,7 @@
 
     {% if duenos_inactivos %}
         <div class="alert alert-warning">
-            <strong>⚠️ Acceso Restringido</strong>
+            <strong>Acceso Restringido</strong>
             <p class="mb-0">Solo el Administrador puede restaurar dueños eliminados. Contacta con el administrador del sistema.</p>
         </div>
 
@@ -46,7 +46,7 @@
                                     class="btn btn-success btn-sm" 
                                     disabled
                                     title="Solo disponible para administradores">
-                                🔄 Restaurar
+                                Restaurar
                             </button>
                         </td>
                     </tr>

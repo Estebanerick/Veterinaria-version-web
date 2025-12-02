@@ -5,8 +5,8 @@
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1>🐕 Lista de Mascotas</h1>
-    <a href="{% url 'agregar_mascota' %}" class="btn btn-primary">➕ Nueva Mascota</a>
+    <h1>Lista de Mascotas</h1>
+    <a href="{% url 'agregar_mascota' %}" class="btn btn-primary">Nueva Mascota</a>
 </div>
 
 {% if messages %}
@@ -78,12 +78,12 @@
                         <a href="{% url 'historial_mascota' mascota.id %}" 
                            class="btn btn-outline-info" 
                            title="Ver historial médico">
-                            📋 Historial
+                            Historial
                         </a>
                         <a href="{% url 'agregar_consulta' %}" 
                            class="btn btn-outline-success" 
                            title="Agregar nueva consulta">
-                            🏥 Nueva Consulta
+                            Nueva Consulta
                         </a>
                     </div>
                 </td>
@@ -96,7 +96,7 @@
 <div class="alert alert-info">
     <div class="d-flex">
         <div class="flex-grow-1">
-            <h4>🐾 No hay mascotas registradas</h4>
+            <h4> No hay mascotas registradas</h4>
             <p class="mb-3">Comienza registrando la primera mascota en el sistema.</p>
             <div class="d-grid gap-2 d-md-flex">
                 <a href="{% url 'agregar_mascota' %}" class="btn btn-primary me-md-2">
@@ -116,7 +116,7 @@
     <div class="col-md-6">
         <div class="card">
             <div class="card-header bg-primary text-white">
-                <h5 class="mb-0">📊 Estadísticas</h5>
+                <h5 class="mb-0">Estadísticas</h5>
             </div>
             <div class="card-body">
                 <p class="mb-2">
@@ -138,18 +138,18 @@
     <div class="col-md-6">
         <div class="card">
             <div class="card-header bg-info text-white">
-                <h5 class="mb-0">🚀 Acciones Rápidas</h5>
+                <h5 class="mb-0">Acciones Rápidas</h5>
             </div>
             <div class="card-body">
                 <div class="d-grid gap-2">
                     <a href="{% url 'agregar_mascota' %}" class="btn btn-outline-primary btn-sm">
-                        ➕ Agregar Nueva Mascota
+                        Agregar Nueva Mascota
                     </a>
                     <a href="{% url 'agregar_consulta' %}" class="btn btn-outline-success btn-sm">
-                        🏥 Registrar Consulta Médica
+                        Registrar Consulta Médica
                     </a>
                     <a href="{% url 'lista_duenos' %}" class="btn btn-outline-secondary btn-sm">
-                        👥 Gestionar Dueños
+                        Gestionar Dueños
                     </a>
                 </div>
             </div>
@@ -160,11 +160,11 @@
 <!-- Información adicional -->
 <div class="card mt-4">
     <div class="card-body">
-        <h5>💡 ¿Cómo usar esta sección?</h5>
+        <h5> ¿Cómo usar esta sección?</h5>
         <ul class="mb-0">
-            <li><strong>📋 Historial:</strong> Ver todas las consultas médicas de una mascota</li>
-            <li><strong>🏥 Nueva Consulta:</strong> Registrar una nueva consulta médica</li>
-            <li><strong>👤 Dueño:</strong> Haz clic en el nombre del dueño para ver su información</li>
+            <li><strong> Historial:</strong> Ver todas las consultas médicas de una mascota</li>
+            <li><strong> Nueva Consulta:</strong> Registrar una nueva consulta médica</li>
+            <li><strong>x Dueño:</strong> Haz clic en el nombre del dueño para ver su información</li>
         </ul>
     </div>
 </div>

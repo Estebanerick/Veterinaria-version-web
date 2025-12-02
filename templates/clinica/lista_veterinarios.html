@@ -5,8 +5,8 @@
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1>👨‍⚕️ Lista de Veterinarios</h1>
-    <a href="{% url 'agregar_veterinario' %}" class="btn btn-primary">➕ Nuevo Veterinario</a>
+    <h1>Lista de Veterinarios</h1>
+    <a href="{% url 'agregar_veterinario' %}" class="btn btn-primary">Nuevo Veterinario</a>
 </div>
 
 {% if messages %}
@@ -76,7 +76,7 @@
                         <a href="{% url 'editar_veterinario' veterinario.id %}" 
                            class="btn btn-outline-primary" 
                            title="Editar veterinario">
-                            ✏️ Editar
+                            Editar
                         </a>
                         
                         <!-- Botón que abre el modal de eliminación -->
@@ -85,7 +85,7 @@
                                 title="Eliminar veterinario"
                                 data-bs-toggle="modal" 
                                 data-bs-target="#confirmarEliminar{{ veterinario.id }}">
-                            🗑️ Eliminar
+                            Eliminar
                         </button>
                     </div>
 
@@ -94,14 +94,14 @@
                         <div class="modal-dialog">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h5 class="modal-title">🔒 Eliminación de Datos</h5>
+                                    <h5 class="modal-title">Eliminación de Datos</h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                 </div>
                                 <div class="modal-body">
                                     <p>¿Estás seguro de que quieres eliminar a <strong>"{{ veterinario.nombre }}"</strong>?</p>
                                     <div class="alert alert-warning">
                                         <small>
-                                            💡 <strong>Los datos se conservarán</strong> pero no aparecerán en las listas activas.<br>
+                                            <strong>Los datos se conservarán</strong> pero no aparecerán en las listas activas.<br>
                                             Para restaurarlos necesitarás autorización proporcionada por el "Administrador".
                                         </small>
                                     </div>
@@ -141,7 +141,7 @@
     <div class="col-md-6">
         <div class="card">
             <div class="card-header bg-info text-white">
-                <h5 class="mb-0">📊 Estadísticas</h5>
+                <h5 class="mb-0">Estadísticas</h5>
             </div>
             <div class="card-body">
                 <p class="mb-2">
@@ -163,18 +163,18 @@
     <div class="col-md-6">
         <div class="card">
             <div class="card-header bg-primary text-white">
-                <h5 class="mb-0">🚀 Acciones Rápidas</h5>
+                <h5 class="mb-0">Acciones Rápidas</h5>
             </div>
             <div class="card-body">
                 <div class="d-grid gap-2">
                     <a href="{% url 'agregar_veterinario' %}" class="btn btn-outline-primary btn-sm">
-                        ➕ Agregar Nuevo Veterinario
+                        Agregar Nuevo Veterinario
                     </a>
                     <a href="{% url 'agregar_consulta' %}" class="btn btn-outline-success btn-sm">
-                        🏥 Registrar Consulta Médica
+                        Registrar Consulta Médica
                     </a>
                     <a href="{% url 'lista_mascotas' %}" class="btn btn-outline-secondary btn-sm">
-                        🐕 Ver Mascotas
+                        Ver Mascotas
                     </a>
                 </div>
             </div>

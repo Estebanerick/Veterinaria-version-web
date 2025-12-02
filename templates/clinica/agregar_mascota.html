@@ -8,7 +8,7 @@
     <div class="col-md-8">
         <div class="card">
             <div class="card-header">
-                <h4 class="mb-0">🐕 Registrar Nueva Mascota</h4>
+                <h4 class="mb-0">Registrar Nueva Mascota</h4>
             </div>
             <div class="card-body">
                 <form method="post">
@@ -57,7 +57,7 @@
                         </select>
                         {% if not duenos %}
                             <div class="alert alert-warning mt-2">
-                                <small>⚠️ No hay dueños registrados. <a href="{% url 'agregar_dueno' %}">Agrega un dueño primero</a>.</small>
+                                <small>No hay dueños registrados. <a href="{% url 'agregar_dueno' %}">Agrega un dueño primero</a>.</small>
                             </div>
                         {% endif %}
                     </div>
