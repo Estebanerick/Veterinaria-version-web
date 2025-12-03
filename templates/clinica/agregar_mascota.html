@@ -11,7 +11,7 @@
                 <h4 class="mb-0">Registrar Nueva Mascota</h4>
             </div>
             <div class="card-body">
-                <form method="post">
+                <form method="post" id="mascotaForm">
                     {% csrf_token %}
                     
                     {% if messages %}
@@ -26,19 +26,31 @@
                     <div class="mb-3">
                         <label for="nombre" class="form-label">Nombre de la mascota *</label>
                         <input type="text" class="form-control" id="nombre" name="nombre" required 
-                               placeholder="Nombre de la mascota">
+                               placeholder="Nombre de la mascota" pattern="[A-Za-záéíóúÁÉÍÓÚñÑ\s]+"
+                               title="Solo se permiten letras y espacios">
+                        <div class="invalid-feedback" id="nombre-error">
+                            Solo se permiten letras y espacios
+                        </div>
                     </div>
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label for="especie" class="form-label">Especie</label>
                             <input type="text" class="form-control" id="especie" name="especie" 
-                                   placeholder="Ej: Perro, Gato, etc.">
+                                   placeholder="Ej: Perro, Gato, etc." pattern="[A-Za-záéíóúÁÉÍÓÚñÑ\s]+"
+                                   title="Solo se permiten letras y espacios">
+                            <div class="invalid-feedback" id="especie-error">
+                                Solo se permiten letras y espacios
+                            </div>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label for="raza" class="form-label">Raza</label>
                             <input type="text" class="form-control" id="raza" name="raza" 
-                                   placeholder="Raza de la mascota">
+                                   placeholder="Raza de la mascota" pattern="[A-Za-záéíóúÁÉÍÓÚñÑ\s]+"
+                                   title="Solo se permiten letras y espacios">
+                            <div class="invalid-feedback" id="raza-error">
+                                Solo se permiten letras y espacios
+                            </div>
                         </div>
                     </div>
 
@@ -73,4 +85,69 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('mascotaForm');
+    const nombreInput = document.getElementById('nombre');
+    const especieInput = document.getElementById('especie');
+    const razaInput = document.getElementById('raza');
+    
+    // Función para validar solo letras y espacios
+    function validarSoloLetras(input, errorElementId) {
+        const regex = /^[A-Za-záéíóúÁÉÍÓÚñÑ\s]+$/;
+        const errorElement = document.getElementById(errorElementId);
+        
+        if (input.value.trim() !== '' && !regex.test(input.value)) {
+            input.classList.add('is-invalid');
+            input.setCustomValidity('Solo se permiten letras y espacios');
+            return false;
+        } else {
+            input.classList.remove('is-invalid');
+            input.setCustomValidity('');
+            return true;
+        }
+    }
+    
+    // Validar en tiempo real
+    nombreInput.addEventListener('input', function() {
+        validarSoloLetras(nombreInput, 'nombre-error');
+    });
+    
+    especieInput.addEventListener('input', function() {
+        validarSoloLetras(especieInput, 'especie-error');
+    });
+    
+    razaInput.addEventListener('input', function() {
+        validarSoloLetras(razaInput, 'raza-error');
+    });
+    
+    // Validar al enviar el formulario
+    form.addEventListener('submit', function(event) {
+        let isValid = true;
+        
+        // Validar nombre (es obligatorio)
+        if (!validarSoloLetras(nombreInput, 'nombre-error')) {
+            isValid = false;
+        }
+        
+        // Validar especie (opcional, pero si tiene contenido debe ser válido)
+        if (especieInput.value.trim() !== '' && !validarSoloLetras(especieInput, 'especie-error')) {
+            isValid = false;
+        }
+        
+        // Validar raza (opcional, pero si tiene contenido debe ser válido)
+        if (razaInput.value.trim() !== '' && !validarSoloLetras(razaInput, 'raza-error')) {
+            isValid = false;
+        }
+        
+        if (!isValid) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        
+        form.classList.add('was-validated');
+    });
+});
+</script>
 {% endblock %}

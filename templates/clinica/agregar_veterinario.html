@@ -11,7 +11,7 @@
                 <h4 class="mb-0">Registrar Nuevo Veterinario</h4>
             </div>
             <div class="card-body">
-                <form method="post">
+                <form method="post" id="veterinarioForm">
                     {% csrf_token %}
                     
                     {% if messages %}
@@ -26,13 +26,21 @@
                     <div class="mb-3">
                         <label for="nombre" class="form-label">Nombre completo *</label>
                         <input type="text" class="form-control" id="nombre" name="nombre" required 
-                               placeholder="Nombre completo del veterinario">
+                               placeholder="Nombre completo del veterinario" pattern="[A-Za-záéíóúÁÉÍÓÚñÑ\s]+"
+                               title="Solo se permiten letras y espacios">
+                        <div class="invalid-feedback" id="nombre-error">
+                            Solo se permiten letras y espacios
+                        </div>
                     </div>
 
                     <div class="mb-3">
                         <label for="especialidad" class="form-label">Especialidad</label>
                         <input type="text" class="form-control" id="especialidad" name="especialidad" 
-                               placeholder="Ej: Cirugía, Dermatología, Cardiología...">
+                               placeholder="Ej: Cirugía, Dermatología, Cardiología..." pattern="[A-Za-záéíóúÁÉÍÓÚñÑ\s]+"
+                               title="Solo se permiten letras y espacios">
+                        <div class="invalid-feedback" id="especialidad-error">
+                            Solo se permiten letras y espacios
+                        </div>
                         <div class="form-text">Puedes dejar este campo vacío si no aplica</div>
                     </div>
 
@@ -40,12 +48,19 @@
                         <div class="col-md-6 mb-3">
                             <label for="telefono" class="form-label">Teléfono</label>
                             <input type="text" class="form-control" id="telefono" name="telefono" 
-                                   placeholder="Número de teléfono">
+                                   placeholder="Número de teléfono" pattern="[0-9\s\+\-\(\)]+"
+                                   title="Solo se permiten números, espacios y los caracteres + - ( )">
+                            <div class="invalid-feedback" id="telefono-error">
+                                Solo se permiten números, espacios y los caracteres + - ( )
+                            </div>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label for="email" class="form-label">Email</label>
                             <input type="email" class="form-control" id="email" name="email" 
                                    placeholder="correo@ejemplo.com">
+                            <div class="invalid-feedback" id="email-error">
+                                Por favor ingresa un email válido
+                            </div>
                         </div>
                     </div>
 
@@ -72,4 +87,111 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('veterinarioForm');
+    const nombreInput = document.getElementById('nombre');
+    const especialidadInput = document.getElementById('especialidad');
+    const telefonoInput = document.getElementById('telefono');
+    const emailInput = document.getElementById('email');
+    
+    // Función para validar solo letras y espacios
+    function validarSoloLetras(input, errorElementId) {
+        const regex = /^[A-Za-záéíóúÁÉÍÓÚñÑ\s]+$/;
+        const errorElement = document.getElementById(errorElementId);
+        
+        if (input.value.trim() !== '' && !regex.test(input.value)) {
+            input.classList.add('is-invalid');
+            input.setCustomValidity('Solo se permiten letras y espacios');
+            return false;
+        } else {
+            input.classList.remove('is-invalid');
+            input.setCustomValidity('');
+            return true;
+        }
+    }
+    
+    // Función para validar teléfono
+    function validarTelefono(input, errorElementId) {
+        const regex = /^[0-9\s\+\-\(\)]+$/;
+        const errorElement = document.getElementById(errorElementId);
+        
+        if (input.value.trim() !== '' && !regex.test(input.value)) {
+            input.classList.add('is-invalid');
+            input.setCustomValidity('Solo se permiten números, espacios y los caracteres + - ( )');
+            return false;
+        } else {
+            input.classList.remove('is-invalid');
+            input.setCustomValidity('');
+            return true;
+        }
+    }
+    
+    // Función para validar email
+    function validarEmail(input, errorElementId) {
+        const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const errorElement = document.getElementById(errorElementId);
+        
+        if (input.value.trim() !== '' && !regex.test(input.value)) {
+            input.classList.add('is-invalid');
+            input.setCustomValidity('Por favor ingresa un email válido');
+            return false;
+        } else {
+            input.classList.remove('is-invalid');
+            input.setCustomValidity('');
+            return true;
+        }
+    }
+    
+    // Validar en tiempo real
+    nombreInput.addEventListener('input', function() {
+        validarSoloLetras(nombreInput, 'nombre-error');
+    });
+    
+    especialidadInput.addEventListener('input', function() {
+        validarSoloLetras(especialidadInput, 'especialidad-error');
+    });
+    
+    telefonoInput.addEventListener('input', function() {
+        validarTelefono(telefonoInput, 'telefono-error');
+    });
+    
+    emailInput.addEventListener('input', function() {
+        validarEmail(emailInput, 'email-error');
+    });
+    
+    // Validar al enviar el formulario
+    form.addEventListener('submit', function(event) {
+        let isValid = true;
+        
+        // Validar nombre (es obligatorio)
+        if (!validarSoloLetras(nombreInput, 'nombre-error')) {
+            isValid = false;
+        }
+        
+        // Validar especialidad (opcional, pero si tiene contenido debe ser válido)
+        if (especialidadInput.value.trim() !== '' && !validarSoloLetras(especialidadInput, 'especialidad-error')) {
+            isValid = false;
+        }
+        
+        // Validar teléfono (opcional, pero si tiene contenido debe ser válido)
+        if (telefonoInput.value.trim() !== '' && !validarTelefono(telefonoInput, 'telefono-error')) {
+            isValid = false;
+        }
+        
+        // Validar email (opcional, pero si tiene contenido debe ser válido)
+        if (emailInput.value.trim() !== '' && !validarEmail(emailInput, 'email-error')) {
+            isValid = false;
+        }
+        
+        if (!isValid) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        
+        form.classList.add('was-validated');
+    });
+});
+</script>
 {% endblock %}
