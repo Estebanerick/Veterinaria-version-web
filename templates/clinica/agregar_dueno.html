@@ -60,9 +60,12 @@
                     </div>
 
                     <div class="mb-3">
-                        <label for="direccion" class="form-label">Dirección</label>
+                        <label for="direccion" class="form-label">Dirección *</label>
                         <textarea class="form-control" id="direccion" name="direccion" rows="3" 
-                                  placeholder="Dirección completa"></textarea>
+                                  placeholder="Dirección completa" required></textarea>
+                        <div class="invalid-feedback" id="direccion-error">
+                            La dirección es obligatoria
+                        </div>
                     </div>
 
                     <div class="d-grid gap-2 d-md-flex justify-content-md-end">
@@ -81,6 +84,7 @@
         const form = document.getElementById('duenoForm');
         const nombreInput = document.getElementById('nombre');
         const telefonoInput = document.getElementById('telefono');
+        const direccionInput = document.getElementById('direccion');
         
         // Función para validar solo letras y espacios
         function validarSoloLetras(input, errorElementId) {
@@ -123,6 +127,15 @@
             validarTelefono(telefonoInput, 'telefono-error');
         });
         
+        // Validar dirección en tiempo real
+        direccionInput.addEventListener('input', function() {
+            if (direccionInput.value.trim() === '') {
+                direccionInput.classList.add('is-invalid');
+            } else {
+                direccionInput.classList.remove('is-invalid');
+            }
+        });
+        
         // Validar al enviar el formulario
         form.addEventListener('submit', function(event) {
             let isValid = true;
@@ -135,6 +148,14 @@
             // Validar teléfono (opcional, pero si tiene contenido debe ser válido)
             if (telefonoInput.value.trim() !== '' && !validarTelefono(telefonoInput, 'telefono-error')) {
                 isValid = false;
+            }
+            
+            // Validar dirección (es obligatoria)
+            if (direccionInput.value.trim() === '') {
+                direccionInput.classList.add('is-invalid');
+                isValid = false;
+            } else {
+                direccionInput.classList.remove('is-invalid');
             }
             
             if (!isValid) {

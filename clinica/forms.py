@@ -29,7 +29,7 @@ class DuenoForm(forms.ModelForm):
             'nombre': 'Nombre completo *',
             'telefono': 'Teléfono',
             'email': 'Correo electrónico',
-            'direccion': 'Dirección',
+            'direccion': 'Dirección *',
         }
 
 class MascotaForm(forms.ModelForm):

@@ -6,15 +6,6 @@
 <div class="container mt-4">
     <h2>Lista de Dueños</h2>
     
-    <!-- Mensajes -->
-    {% if messages %}
-        {% for message in messages %}
-            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        {% endfor %}
-    {% endif %}
 
     <!-- Estadísticas y Botones Superiores -->
     <div class="row mb-4">
@@ -22,28 +13,22 @@
             <div class="card">
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-md-3">
+                        <div class="col-md-4">
                             <div class="text-center">
                                 <h4>{{ duenos|length }}</h4>
                                 <small class="text-muted">Total Dueños</small>
                             </div>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-4">
                             <div class="text-center">
                                 <h4>{{ duenos_con_telefono }}</h4>
                                 <small class="text-muted">Con Teléfono</small>
                             </div>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-4">
                             <div class="text-center">
                                 <h4>{{ duenos_con_email }}</h4>
                                 <small class="text-muted">Con Email</small>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="text-center">
-                                <h4>{{ duenos_inactivos }}</h4>
-                                <small class="text-muted">Inactivos</small>
                             </div>
                         </div>
                     </div>
