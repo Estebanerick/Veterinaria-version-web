@@ -1,6 +1,8 @@
 # clinica/models.py
 from django.db import models
 from django.utils import timezone
+from django.core.exceptions import ValidationError
+from datetime import date
 
 class SoftDeleteManager(models.Manager):
     def get_queryset(self):
@@ -91,6 +93,11 @@ class Mascota(models.Model):
     fecha_eliminacion = models.DateTimeField(blank=True, null=True)
     
     objects = SoftDeleteManager()
+    
+    def clean(self):
+        """Validar que la fecha de nacimiento no sea en el futuro"""
+        if self.fecha_nacimiento and self.fecha_nacimiento > date.today():
+            raise ValidationError({'fecha_nacimiento': 'La fecha de nacimiento no puede ser en el futuro.'})
     
     def __str__(self):
         status = " (Inactiva)" if not self.activo else ""

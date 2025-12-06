@@ -57,6 +57,9 @@
                     <div class="mb-3">
                         <label for="fecha_nacimiento" class="form-label">Fecha de nacimiento</label>
                         <input type="date" class="form-control" id="fecha_nacimiento" name="fecha_nacimiento">
+                        <div class="invalid-feedback" id="fecha_nacimiento-error">
+                            La fecha de nacimiento no puede ser en el futuro
+                        </div>
                     </div>
 
                     <div class="mb-3">
@@ -92,6 +95,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const nombreInput = document.getElementById('nombre');
     const especieInput = document.getElementById('especie');
     const razaInput = document.getElementById('raza');
+    const fechaNacimientoInput = document.getElementById('fecha_nacimiento');
+    
+    // Establecer fecha máxima como el día actual (restricción del navegador)
+    const today = new Date().toISOString().split('T')[0];
+    fechaNacimientoInput.max = today;
+    fechaNacimientoInput.setAttribute('max', today);
     
     // Función para validar solo letras y espacios
     function validarSoloLetras(input, errorElementId) {
@@ -101,6 +110,35 @@ document.addEventListener('DOMContentLoaded', function() {
         if (input.value.trim() !== '' && !regex.test(input.value)) {
             input.classList.add('is-invalid');
             input.setCustomValidity('Solo se permiten letras y espacios');
+            return false;
+        } else {
+            input.classList.remove('is-invalid');
+            input.setCustomValidity('');
+            return true;
+        }
+    }
+    
+    // Función para validar fecha de nacimiento
+    function validarFechaNacimiento(input) {
+        if (input.value === '') {
+            input.classList.remove('is-invalid');
+            input.setCustomValidity('');
+            return true;
+        }
+        
+        // Parsear la fecha de entrada
+        const [year, month, day] = input.value.split('-');
+        const selectedDate = new Date(year, month - 1, day);
+        
+        // Obtener fecha actual
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        selectedDate.setHours(0, 0, 0, 0);
+        
+        // Comparar fechas
+        if (selectedDate > today) {
+            input.classList.add('is-invalid');
+            input.setCustomValidity('La fecha de nacimiento no puede ser en el futuro');
             return false;
         } else {
             input.classList.remove('is-invalid');
@@ -122,6 +160,14 @@ document.addEventListener('DOMContentLoaded', function() {
         validarSoloLetras(razaInput, 'raza-error');
     });
     
+    fechaNacimientoInput.addEventListener('input', function() {
+        validarFechaNacimiento(fechaNacimientoInput);
+    });
+    
+    fechaNacimientoInput.addEventListener('change', function() {
+        validarFechaNacimiento(fechaNacimientoInput);
+    });
+    
     // Validar al enviar el formulario
     form.addEventListener('submit', function(event) {
         let isValid = true;
@@ -141,12 +187,18 @@ document.addEventListener('DOMContentLoaded', function() {
             isValid = false;
         }
         
+        // Validar fecha de nacimiento (opcional, pero si tiene valor debe ser válido)
+        if (fechaNacimientoInput.value !== '' && !validarFechaNacimiento(fechaNacimientoInput)) {
+            isValid = false;
+            // Mostrar la validación
+            fechaNacimientoInput.reportValidity();
+        }
+        
         if (!isValid) {
             event.preventDefault();
             event.stopPropagation();
+            form.classList.add('was-validated');
         }
-        
-        form.classList.add('was-validated');
     });
 });
 </script>

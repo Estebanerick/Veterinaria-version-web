@@ -361,6 +361,16 @@ def agregar_mascota(request):
             id_dueno = request.POST.get('dueno')
             
             if nombre and id_dueno:
+                # Validar que la fecha de nacimiento no sea en el futuro
+                if fecha_nacimiento:
+                    from datetime import datetime
+                    fecha_obj = datetime.strptime(fecha_nacimiento, '%Y-%m-%d').date()
+                    from datetime import date
+                    if fecha_obj > date.today():
+                        messages.error(request, '❌ La fecha de nacimiento no puede ser en el futuro')
+                        duenos = Dueno.objects.filter(activo=True).order_by('nombre')
+                        return render(request, 'clinica/agregar_mascota.html', {'duenos': duenos})
+                
                 # Verificar que el dueño existe en SQLite
                 dueno_local = Dueno.objects.get(id=id_dueno, activo=True)
                 
