@@ -8,6 +8,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from .models import Dueno, Mascota, Veterinario, Consulta, Pago
 from .forms import DuenoForm
+import requests
 
 # NO importar supabase aquí - causará importación circular
 # from .supabase_client import supabase
@@ -68,12 +69,28 @@ def home(request):
     total_consultas = Consulta.objects.count()
     total_veterinarios = Veterinario.objects.count()
     
+    url_api = "https://api.open-meteo.com/v1/forecast?latitude=-33.44&longitude=-70.66&current_weather=true"
+    clima = None
+    
+    try:
+        respuesta = requests.get(url_api, timeout=3)
+        if respuesta.status_code == 200:
+            data = respuesta.json()
+        
+            clima = {
+                'temperatura': data['current_weather']['temperature'],
+                'viento': data['current_weather']['windspeed']
+            }
+    except Exception as e:
+        print(f"Error clima: {e}")
+
     context = {
         'total_duenos': total_duenos,
         'total_mascotas': total_mascotas,
         'total_consultas': total_consultas,
         'total_veterinarios': total_veterinarios,
         'conexion_supabase': True,
+        'clima': clima,
     }
     
     return render(request, 'clinica/home.html', context)
