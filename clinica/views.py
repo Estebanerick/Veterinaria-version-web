@@ -34,14 +34,14 @@ def login_view(request):
             next_url = request.GET.get('next', 'home')
             return redirect(next_url)
         else:
-            messages.error(request, '❌ Usuario o contraseña incorrectos')
+            messages.error(request, 'Usuario o contraseña incorrectos')
     
     return render(request, 'clinica/login.html')
 
 def logout_view(request):
     """Vista para cerrar sesión"""
     logout(request)
-    messages.success(request, '✅ Has cerrado sesión exitosamente')
+    messages.success(request, 'Has cerrado sesión exitosamente')
     return redirect('login')
 
 def register_view(request):
@@ -50,7 +50,7 @@ def register_view(request):
         form = UserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
-            messages.success(request, f'✅ Usuario {user.username} creado exitosamente')
+            messages.success(request, f'Usuario {user.username} creado exitosamente')
             return redirect('login')
         else:
             for error in form.errors.values():
@@ -140,15 +140,15 @@ def agregar_dueno(request):
                         "direccion": direccion or ""
                     }
                     supabase.table("dueno").insert(datos_supabase).execute()
-                    print(f"✅ Dueño sincronizado con Supabase: {nombre}")
+                    print(f"Dueño sincronizado con Supabase: {nombre}")
                 
-                messages.success(request, f'✅ Dueño "{dueno_local.nombre}" registrado exitosamente')
+                messages.success(request, f'Dueño "{dueno_local.nombre}" registrado exitosamente')
                 return redirect('lista_duenos')
             else:
-                messages.error(request, '❌ El nombre es obligatorio')
+                messages.error(request, 'El nombre es obligatorio')
                 
         except Exception as e:
-            messages.error(request, f'❌ Error al guardar: {e}')
+            messages.error(request, f'Error al guardar: {e}')
     
     return render(request, 'clinica/agregar_dueno.html')
 
@@ -175,15 +175,15 @@ def editar_dueno(request, dueno_id):
                     "direccion": dueno.direccion or ""
                 }
                 supabase.table("dueno").update(datos_supabase).eq("nombre", dueno.nombre).execute()
-                print(f"✅ Dueño actualizado en Supabase: {dueno.nombre}")
+                print(f"Dueño actualizado en Supabase: {dueno.nombre}")
             
-            messages.success(request, f'✅ Dueño "{dueno.nombre}" actualizado exitosamente')
+            messages.success(request, f'Dueño "{dueno.nombre}" actualizado exitosamente')
             return redirect('lista_duenos')
         
         return render(request, 'clinica/editar_dueno.html', {'dueno': dueno})
         
     except Dueno.DoesNotExist:
-        messages.error(request, '❌ Dueño no encontrado')
+        messages.error(request, 'Dueño no encontrado')
         return redirect('lista_duenos')
 
 @login_required
@@ -195,15 +195,15 @@ def eliminar_dueno_logico(request, dueno_id):
         # Verificar si tiene mascotas activas antes de eliminar
         mascotas_count = Mascota.objects.filter(dueno=dueno, activo=True).count()
         if mascotas_count > 0:
-            messages.error(request, f'❌ No se puede eliminar al dueño "{dueno.nombre}" porque tiene {mascotas_count} mascota(s) activa(s)')
+            messages.error(request, f'No se puede eliminar al dueño "{dueno.nombre}" porque tiene {mascotas_count} mascota(s) activa(s)')
             return redirect('lista_duenos')
         
         # ELIMINACIÓN LÓGICA (no física)
         dueno.eliminar_logicamente()
-        messages.success(request, f'✅ Dueño "{dueno.nombre}" eliminado lógicamente')
+        messages.success(request, f'Dueño "{dueno.nombre}" eliminado lógicamente')
         
     except Dueno.DoesNotExist:
-        messages.error(request, '❌ Dueño no encontrado o ya está inactivo')
+        messages.error(request, 'Dueño no encontrado o ya está inactivo')
     
     return redirect('lista_duenos')
 
@@ -222,9 +222,9 @@ def restaurar_dueno(request, dueno_id):
     try:
         dueno = Dueno.objects.get(id=dueno_id, activo=False)
         dueno.restaurar()
-        messages.success(request, f'✅ Dueño "{dueno.nombre}" restaurado exitosamente')
+        messages.success(request, f'Dueño "{dueno.nombre}" restaurado exitosamente')
     except Dueno.DoesNotExist:
-        messages.error(request, '❌ Dueño no encontrado o ya está activo')
+        messages.error(request, 'Dueño no encontrado o ya está activo')
     
     return redirect('lista_duenos_inactivos')
 
@@ -241,7 +241,7 @@ def mascotas_dueno(request, dueno_id):
         })
         
     except Dueno.DoesNotExist:
-        messages.error(request, '❌ Dueño no encontrado')
+        messages.error(request, 'Dueño no encontrado')
         return redirect('lista_duenos')
 
 # VISTAS PARA VETERINARIOS
@@ -286,15 +286,15 @@ def agregar_veterinario(request):
                         "activo": True
                     }
                     supabase.table("veterinario").insert(datos_supabase).execute()
-                    print(f"✅ Veterinario sincronizado con Supabase: {nombre}")
+                    print(f"Veterinario sincronizado con Supabase: {nombre}")
                 
-                messages.success(request, f'✅ Veterinario "{veterinario_local.nombre}" registrado exitosamente')
+                messages.success(request, f'Veterinario "{veterinario_local.nombre}" registrado exitosamente')
                 return redirect('lista_veterinarios')
             else:
-                messages.error(request, '❌ El nombre es obligatorio')
+                messages.error(request, 'El nombre es obligatorio')
                 
         except Exception as e:
-            messages.error(request, f'❌ Error al guardar veterinario: {e}')
+            messages.error(request, f'Error al guardar veterinario: {e}')
     
     return render(request, 'clinica/agregar_veterinario.html')
 
@@ -311,13 +311,13 @@ def editar_veterinario(request, veterinario_id):
             veterinario.email = request.POST.get('email', veterinario.email)
             veterinario.save()
             
-            messages.success(request, f'✅ Veterinario "{veterinario.nombre}" actualizado exitosamente')
+            messages.success(request, f'Veterinario "{veterinario.nombre}" actualizado exitosamente')
             return redirect('lista_veterinarios')
         
         return render(request, 'clinica/editar_veterinario.html', {'veterinario': veterinario})
         
     except Veterinario.DoesNotExist:
-        messages.error(request, '❌ Veterinario no encontrado')
+        messages.error(request, 'Veterinario no encontrado')
         return redirect('lista_veterinarios')
 
 @login_required
@@ -326,10 +326,10 @@ def eliminar_veterinario_logico(request, veterinario_id):
     try:
         veterinario = Veterinario.objects.get(id=veterinario_id, activo=True)
         veterinario.eliminar_logicamente()
-        messages.success(request, f'✅ Veterinario "{veterinario.nombre}" eliminado lógicamente')
+        messages.success(request, f'Veterinario "{veterinario.nombre}" eliminado lógicamente')
         
     except Veterinario.DoesNotExist:
-        messages.error(request, '❌ Veterinario no encontrado o ya está inactivo')
+        messages.error(request, 'Veterinario no encontrado o ya está inactivo')
     
     return redirect('lista_veterinarios')
 
@@ -348,9 +348,9 @@ def restaurar_veterinario(request, veterinario_id):
     try:
         veterinario = Veterinario.objects.get(id=veterinario_id, activo=False)
         veterinario.restaurar()
-        messages.success(request, f'✅ Veterinario "{veterinario.nombre}" restaurado exitosamente')
+        messages.success(request, f'Veterinario "{veterinario.nombre}" restaurado exitosamente')
     except Veterinario.DoesNotExist:
-        messages.error(request, '❌ Veterinario no encontrado o ya está activo')
+        messages.error(request, 'Veterinario no encontrado o ya está activo')
     
     return redirect('lista_veterinarios_inactivos')
 
@@ -384,7 +384,7 @@ def agregar_mascota(request):
                     fecha_obj = datetime.strptime(fecha_nacimiento, '%Y-%m-%d').date()
                     from datetime import date
                     if fecha_obj > date.today():
-                        messages.error(request, '❌ La fecha de nacimiento no puede ser en el futuro')
+                        messages.error(request, 'La fecha de nacimiento no puede ser en el futuro')
                         duenos = Dueno.objects.filter(activo=True).order_by('nombre')
                         return render(request, 'clinica/agregar_mascota.html', {'duenos': duenos})
                 
@@ -416,19 +416,19 @@ def agregar_mascota(request):
                             "id_dueno": id_dueno_supabase
                         }
                         supabase.table("mascota").insert(datos_supabase).execute()
-                        print(f"✅ Mascota sincronizada con Supabase: {nombre}")
+                        print(f"Mascota sincronizada con Supabase: {nombre}")
                     else:
-                        print(f"⚠️ Dueño no encontrado en Supabase: {dueno_local.nombre}")
+                        print(f"Dueño no encontrado en Supabase: {dueno_local.nombre}")
                 
-                messages.success(request, f'✅ Mascota "{mascota_local.nombre}" registrada exitosamente')
+                messages.success(request, f'Mascota "{mascota_local.nombre}" registrada exitosamente')
                 return redirect('lista_mascotas')
             else:
-                messages.error(request, '❌ El nombre y dueño son obligatorios')
+                messages.error(request, 'El nombre y dueño son obligatorios')
                 
         except Dueno.DoesNotExist:
-            messages.error(request, '❌ El dueño seleccionado no existe o está inactivo')
+            messages.error(request, 'El dueño seleccionado no existe o está inactivo')
         except Exception as e:
-            messages.error(request, f'❌ Error al guardar mascota: {e}')
+            messages.error(request, f'Error al guardar mascota: {e}')
     
     # Obtener dueños activos para el dropdown
     duenos = Dueno.objects.filter(activo=True)
@@ -440,10 +440,10 @@ def eliminar_mascota_logico(request, mascota_id):
     try:
         mascota = Mascota.objects.get(id=mascota_id, activo=True)
         mascota.eliminar_logicamente()
-        messages.success(request, f'✅ Mascota "{mascota.nombre}" eliminada lógicamente')
+        messages.success(request, f'Mascota "{mascota.nombre}" eliminada lógicamente')
         
     except Mascota.DoesNotExist:
-        messages.error(request, '❌ Mascota no encontrada o ya está inactiva')
+        messages.error(request, 'Mascota no encontrada o ya está inactiva')
     
     return redirect('lista_mascotas')
 
@@ -462,9 +462,9 @@ def restaurar_mascota(request, mascota_id):
     try:
         mascota = Mascota.objects.get(id=mascota_id, activo=False)
         mascota.restaurar()
-        messages.success(request, f'✅ Mascota "{mascota.nombre}" restaurada exitosamente')
+        messages.success(request, f'Mascota "{mascota.nombre}" restaurada exitosamente')
     except Mascota.DoesNotExist:
-        messages.error(request, '❌ Mascota no encontrada o ya está activa')
+        messages.error(request, 'Mascota no encontrada o ya está activa')
     
     return redirect('lista_mascotas_inactivas')
 
@@ -539,22 +539,22 @@ def agregar_consulta(request):
                             "id_veterinario": id_veterinario_supabase
                         }
                         supabase.table("consulta").insert(datos_supabase).execute()
-                        print(f"✅ Consulta sincronizada con Supabase: {mascota_local.nombre}")
+                        print(f"Consulta sincronizada con Supabase: {mascota_local.nombre}")
                     else:
-                        print(f"⚠️ Mascota no encontrada en Supabase: {mascota_local.nombre}")
+                        print(f"Mascota no encontrada en Supabase: {mascota_local.nombre}")
                 
-                messages.success(request, f'✅ Consulta registrada exitosamente para {mascota_local.nombre}')
+                messages.success(request, f'Consulta registrada exitosamente para {mascota_local.nombre}')
                 return redirect('lista_consultas')
                 
             else:
-                messages.error(request, '❌ La mascota y el motivo son obligatorios')
+                messages.error(request, 'La mascota y el motivo son obligatorios')
                 
         except Mascota.DoesNotExist:
-            messages.error(request, '❌ La mascota seleccionada no existe o está inactiva')
+            messages.error(request, 'La mascota seleccionada no existe o está inactiva')
         except Veterinario.DoesNotExist:
-            messages.error(request, '❌ El veterinario seleccionado no existe o está inactivo')
+            messages.error(request, 'El veterinario seleccionado no existe o está inactivo')
         except Exception as e:
-            messages.error(request, f'❌ Error al guardar consulta: {e}')
+            messages.error(request, f'Error al guardar consulta: {e}')
     
     # Obtener datos activos para los dropdowns
     mascotas = Mascota.objects.filter(activo=True).select_related('dueno').all()
@@ -571,10 +571,10 @@ def eliminar_consulta_logico(request, consulta_id):
     try:
         consulta = Consulta.objects.get(id=consulta_id, activo=True)
         consulta.eliminar_logicamente()
-        messages.success(request, f'✅ Consulta eliminada lógicamente')
+        messages.success(request, f'Consulta eliminada lógicamente')
         
     except Consulta.DoesNotExist:
-        messages.error(request, '❌ Consulta no encontrada o ya está inactiva')
+        messages.error(request, 'Consulta no encontrada o ya está inactiva')
     
     return redirect('lista_consultas')
 
@@ -593,9 +593,9 @@ def restaurar_consulta(request, consulta_id):
     try:
         consulta = Consulta.objects.get(id=consulta_id, activo=False)
         consulta.restaurar()
-        messages.success(request, f'✅ Consulta restaurada exitosamente')
+        messages.success(request, f'Consulta restaurada exitosamente')
     except Consulta.DoesNotExist:
-        messages.error(request, '❌ Consulta no encontrada o ya está activa')
+        messages.error(request, 'Consulta no encontrada o ya está activa')
     
     return redirect('lista_consultas_inactivas')
 
@@ -612,7 +612,7 @@ def historial_mascota(request, mascota_id):
         })
         
     except Mascota.DoesNotExist:
-        messages.error(request, '❌ Mascota no encontrada')
+        messages.error(request, 'Mascota no encontrada')
         return redirect('lista_mascotas')
 
 # VISTAS PARA PAGOS
@@ -622,10 +622,10 @@ def eliminar_pago_logico(request, pago_id):
     try:
         pago = Pago.objects.get(id=pago_id, activo=True)
         pago.eliminar_logicamente()
-        messages.success(request, f'✅ Pago eliminado lógicamente')
+        messages.success(request, f'Pago eliminado lógicamente')
         
     except Pago.DoesNotExist:
-        messages.error(request, '❌ Pago no encontrado o ya está inactivo')
+        messages.error(request, 'Pago no encontrado o ya está inactivo')
     
     return redirect('lista_consultas')  # Ajustar según tu ruta de pagos
 
@@ -644,9 +644,9 @@ def restaurar_pago(request, pago_id):
     try:
         pago = Pago.objects.get(id=pago_id, activo=False)
         pago.restaurar()
-        messages.success(request, f'✅ Pago restaurado exitosamente')
+        messages.success(request, f'Pago restaurado exitosamente')
     except Pago.DoesNotExist:
-        messages.error(request, '❌ Pago no encontrado o ya está activo')
+        messages.error(request, 'Pago no encontrado o ya está activo')
     
     return redirect('lista_pagos_inactivos')
 
@@ -657,10 +657,10 @@ def eliminar_veterinario_logico(request, veterinario_id):
     try:
         veterinario = Veterinario.objects.get(id=veterinario_id, activo=True)
         veterinario.eliminar_logicamente()
-        messages.success(request, f'✅ Veterinario "{veterinario.nombre}" eliminado lógicamente')
+        messages.success(request, f'Veterinario "{veterinario.nombre}" eliminado lógicamente')
         
     except Veterinario.DoesNotExist:
-        messages.error(request, '❌ Veterinario no encontrado o ya está inactivo')
+        messages.error(request, 'Veterinario no encontrado o ya está inactivo')
     
     return redirect('lista_veterinarios')
 
@@ -677,14 +677,14 @@ def lista_veterinarios_inactivos(request):
 def restaurar_veterinario(request, veterinario_id):
     """Restaurar un veterinario eliminado lógicamente"""
     if not request.user.is_staff:  # Solo staff/admin pueden restaurar
-        messages.error(request, '❌ No tienes permisos para restaurar veterinarios. Contacta al administrador.')
+        messages.error(request, 'No tienes permisos para restaurar veterinarios. Contacta al administrador.')
         return redirect('lista_veterinarios_inactivos')
     
     try:
         veterinario = Veterinario.objects.get(id=veterinario_id, activo=False)
         veterinario.restaurar()
-        messages.success(request, f'✅ Veterinario "{veterinario.nombre}" restaurado exitosamente')
+        messages.success(request, f'Veterinario "{veterinario.nombre}" restaurado exitosamente')
     except Veterinario.DoesNotExist:
-        messages.error(request, '❌ Veterinario no encontrado o ya está activo')
+        messages.error(request, 'Veterinario no encontrado o ya está activo')
     
     return redirect('lista_veterinarios_inactivos')

@@ -8,3 +8,9 @@ Para que funcione la pagina
 
 NOTA
     Solo funciona con el VS Code abierto ejecutandose python manage.py runserver
+
+    pip install django 
+    pip install dotenv
+    pip install supabase
+    python -m pip install requests
+    

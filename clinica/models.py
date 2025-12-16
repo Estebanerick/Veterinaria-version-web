@@ -45,9 +45,9 @@ class Dueno(Persona):
         if supabase:
             try:
                 supabase.table("dueno").update({"activo": False}).eq("nombre", self.nombre).execute()
-                print(f"✅ Dueño marcado como inactivo en Supabase: {self.nombre}")
+                print(f"Dueño marcado como inactivo en Supabase: {self.nombre}")
             except Exception as e:
-                print(f"❌ Error actualizando Supabase: {e}")
+                print(f"Error actualizando Supabase: {e}")
     
     def restaurar(self):
         self.activo = True
@@ -58,9 +58,9 @@ class Dueno(Persona):
         if supabase:
             try:
                 supabase.table("dueno").update({"activo": True}).eq("nombre", self.nombre).execute()
-                print(f"✅ Dueño restaurado en Supabase: {self.nombre}")
+                print(f"Dueño restaurado en Supabase: {self.nombre}")
             except Exception as e:
-                print(f"❌ Error actualizando Supabase: {e}")
+                print(f"Error actualizando Supabase: {e}")
 
     class Meta:
         verbose_name_plural = "Dueños"
