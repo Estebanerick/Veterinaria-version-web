@@ -17,36 +17,36 @@ class ConexionBD:
         """Establecer conexión con Supabase"""
         try:
             if not self.url or not self.key:
-                raise ValueError("❌ Faltan variables de entorno SUPABASE_URL o SUPABASE_KEY")
+                raise ValueError("Faltan variables de entorno SUPABASE_URL o SUPABASE_KEY")
             
-            print("🔗 Conectando a Supabase...")
+            print("Conectando a Supabase...")
             self.client = create_client(self.url, self.key)
-            print("✅ Cliente Supabase creado exitosamente")
+            print("Cliente Supabase creado exitosamente")
             
         except Exception as e:
-            print(f"❌ Error en conexión: {e}")
+            print(f"Error en conexión: {e}")
             self.client = None
     
     def probar_tablas(self):
         """Probar acceso a las tablas"""
         if not self.client:
-            print("❌ No hay conexión disponible")
+            print("No hay conexión disponible")
             return False
         
         tablas = ["dueno", "mascota", "veterinario", "consulta", "pago"]
-        print("\n🔍 Probando acceso a tablas...")
+        print("\n Probando acceso a tablas...")
         
         tablas_conectadas = 0
         for tabla in tablas:
             try:
                 self.client.table(tabla).select("*").limit(1).execute()
-                print(f"   ✅ {tabla}: CONECTADA")
+                print(f"   {tabla}: CONECTADA")
                 tablas_conectadas += 1
             except Exception as e:
                 if "relation" in str(e) and "does not exist" in str(e):
-                    print(f"   ❌ {tabla}: TABLA NO EXISTE")
+                    print(f"    {tabla}: TABLA NO EXISTE")
                 else:
-                    print(f"   ❌ {tabla}: Error - {str(e)[:80]}...")
+                    print(f"    {tabla}: Error - {str(e)[:80]}...")
         
         return tablas_conectadas == len(tablas)
     
@@ -62,17 +62,17 @@ try:
     conexion_db = ConexionBD.get_instance()
     supabase = conexion_db.client  # Esta es la variable que debe exportarse
 except Exception as e:
-    print(f"❌ Error fatal al inicializar conexión: {e}")
+    print(f" Error fatal al inicializar conexión: {e}")
     supabase = None
 
 def test_conexion():
     """Función para probar la conexión"""
     if not supabase:
-        print("❌ No se pudo inicializar Supabase")
+        print(" No se pudo inicializar Supabase")
         return False
     
     print("\n" + "="*50)
-    print("🔍 VERIFICACIÓN DE CONEXIÓN A SUPABASE")
+    print(" VERIFICACIÓN DE CONEXIÓN A SUPABASE")
     print("="*50)
     
     conexion = ConexionBD.get_instance()
@@ -80,6 +80,6 @@ def test_conexion():
         print(f"\n¡CONEXIÓN EXITOSA! Todas las tablas accesibles.")
         return True
     else:
-        print("\n❌ FALLO EN LA CONEXIÓN O TABLAS FALTANTES")
-        print("💡 SOLUCIÓN: Verifica tus credenciales en .env y que las tablas existan en Supabase.")
+        print("\n FALLO EN LA CONEXIÓN O TABLAS FALTANTES")
+        print(" SOLUCIÓN: Verifica tus credenciales en .env y que las tablas existan en Supabase.")
         return False
